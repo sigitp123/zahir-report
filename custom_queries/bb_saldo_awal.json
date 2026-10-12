@@ -1,0 +1,21 @@
+{
+    "reason": "Akumulasi debit/kredit per akun untuk saldo awal (Zahir Ledger Viewer) — filter date.$lt=tanggal awal",
+    "name": "bb_saldo_awal",
+    "field": {
+        "account_id": "G1.ACCOUNT_ID",
+        "kode_akun": "kode_akun",
+        "nama_akun": "nama_akun",
+        "noklasifikasi": "noklasifikasi",
+        "debit": "debit",
+        "kredit": "kredit",
+        "jumlah": "jumlah",
+        "date": "G1.D",
+        "account_code": "G1.ACCOUNT_CODE",
+        "department_id": "G1.DEPARTMENT_ID",
+        "project_id": "G1.PROJECT_ID",
+        "cost_code_id": "G1.COST_CODE_ID",
+        "currency_id": "G1.CURRENCY_ID"
+    },
+    "query": "WITH f AS (\n  SELECT G1.* FROM (\n    SELECT\n      g.tanggal::date AS d,\n      jv.account_id,\n      k.code AS account_code,\n      jv.department_id,\n      jv.project_id,\n      jv.cost_code_id,\n      g.contact_id,\n      g.currency_id,\n      g.id  AS transaction_id,\n      jv.id AS jurnal_id,\n      g.type,\n      g.nojurnal,\n      g.keterangan,\n      COALESCE(jv.debit, 0)::numeric  AS debit,\n      COALESCE(jv.kredit, 0)::numeric AS kredit\n    FROM g_jurnal g\n    JOIN jurnalvc jv ON jv.transaction_id = g.id\n    JOIN kiraan k    ON k.id = jv.account_id\n    WHERE g.status = 'approved'\n  ) G1\n  WHERE 1=1 {andWhere}\n),\nhasil AS (\n  SELECT\n    f.account_id,\n    f.account_code            AS kode_akun,\n    k.nama                    AS nama_akun,\n    k2.noklasifikasi,\n    SUM(f.debit)::numeric(18,2)  AS debit,\n    SUM(f.kredit)::numeric(18,2) AS kredit,\n    COUNT(*)                  AS jumlah\n  FROM f\n  JOIN kiraan k  ON k.id = f.account_id\n  JOIN subklas s ON s.id = k.subclassification_id\n  JOIN klas k2   ON k2.id = s.classification_id\n  GROUP BY f.account_id, f.account_code, k.nama, k2.noklasifikasi\n)\nSELECT account_id, kode_akun, nama_akun, noklasifikasi, debit, kredit, jumlah\nFROM hasil\nORDER BY kode_akun {andOrder} {limit}",
+    "query_count": "WITH f AS (\n  SELECT G1.* FROM (\n    SELECT\n      g.tanggal::date AS d,\n      jv.account_id,\n      k.code AS account_code,\n      jv.department_id,\n      jv.project_id,\n      jv.cost_code_id,\n      g.contact_id,\n      g.currency_id,\n      g.id  AS transaction_id,\n      jv.id AS jurnal_id,\n      g.type,\n      g.nojurnal,\n      g.keterangan,\n      COALESCE(jv.debit, 0)::numeric  AS debit,\n      COALESCE(jv.kredit, 0)::numeric AS kredit\n    FROM g_jurnal g\n    JOIN jurnalvc jv ON jv.transaction_id = g.id\n    JOIN kiraan k    ON k.id = jv.account_id\n    WHERE g.status = 'approved'\n  ) G1\n  WHERE 1=1 {andWhere}\n),\nhasil AS (\n  SELECT\n    f.account_id,\n    f.account_code            AS kode_akun,\n    k.nama                    AS nama_akun,\n    k2.noklasifikasi,\n    SUM(f.debit)::numeric(18,2)  AS debit,\n    SUM(f.kredit)::numeric(18,2) AS kredit,\n    COUNT(*)                  AS jumlah\n  FROM f\n  JOIN kiraan k  ON k.id = f.account_id\n  JOIN subklas s ON s.id = k.subclassification_id\n  JOIN klas k2   ON k2.id = s.classification_id\n  GROUP BY f.account_id, f.account_code, k.nama, k2.noklasifikasi\n)\nSELECT COUNT(*) FROM hasil"
+}

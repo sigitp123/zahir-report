@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --omit=dev --no-audit --no-fund",
+  "buildCommand": "",
+  "outputDirectory": "vercel-static",
+  "regions": ["sin1"],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300,
+      "includeFiles": "{package.json,public/**,custom_queries/**,node_modules/exceljs/dist/exceljs.min.js}"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }]
+}

@@ -1,0 +1,1692 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zahir Insight</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1b2d; --card:#fff; --ink:#1b2a41; --muted:#6b7a90; --line:#e3e8ef;
+  --brand:#0e7fb8; --brand2:#063e5c; --accent:#f2a93b; --ok:#2e7d32; --bad:#c62828;
+  --row:#f5f8fb; --head:#0e7fb8; --sa:#eef5f9; --green:#2db36a; --orange:#f2a93b; --grey:#9aa7b8;
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;background:#eef2f6;color:var(--ink);font-size:14px}
+.mono{font-family:"IBM Plex Mono",monospace}
+button{font:inherit;cursor:pointer;border:0;border-radius:6px;padding:9px 14px;background:var(--brand);color:#fff;font-weight:500}
+button.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+button.warn{background:var(--accent);color:#1b2a41}
+button:disabled{opacity:.5;cursor:default}
+input,select{font:inherit;padding:9px 11px;border:1px solid #cbd5e1;border-radius:6px;width:100%;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:2px solid #8ecae6;border-color:var(--brand)}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:500;letter-spacing:.02em;text-transform:uppercase}
+.err{color:var(--bad);font-size:13px;margin-top:8px;white-space:pre-wrap}
+.hide{display:none!important}
+a{color:var(--brand)}
+
+/* ---------- LOGIN ---------- */
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+#login .side{background:linear-gradient(160deg,#ffffff 0%,#f5f8fb 60%,#eaf1f7 100%);border-right:1px solid var(--line);padding:44px 48px 28px;display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;overflow:hidden}
+#login .side::before{content:"";position:absolute;inset:auto -120px -160px auto;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,#fde9e5 0%,rgba(253,233,229,0) 70%)}
+#login .side .logo{display:flex;align-items:center;gap:10px;align-self:flex-start;position:relative}
+#login .side .logo img{height:44px;width:auto}
+#login .side .logo span{font-size:30px;font-weight:600;color:#e8503a;letter-spacing:-.01em;line-height:1;margin-top:6px}
+#login .side .hero{flex:1;display:flex;align-items:center;justify-content:center;width:100%;position:relative}
+#login .side .hero svg{width:min(100%,520px);height:auto}
+#login .side .tag{font-size:14px;color:var(--muted);position:relative}
+@media (max-width:860px){#login .side .hero{display:none}#login .side{padding:28px}}
+#login .form{display:flex;align-items:center;justify-content:center;padding:40px}
+#login .card{width:100%;max-width:420px;background:var(--card);border-radius:14px;padding:34px 34px 28px;box-shadow:0 20px 60px rgba(15,27,45,.18)}
+#login .card h2{margin:0 0 4px;font-size:22px}
+#login .card .sub{color:var(--muted);margin:0 0 22px;font-size:13px}
+.field{margin-bottom:14px}
+details.adv summary{cursor:pointer;color:var(--muted);font-size:12px;margin:4px 0 10px}
+#btnLogin{width:100%;padding:12px;margin-top:6px;font-size:15px;background:var(--brand2)}
+@media (max-width:860px){#login{grid-template-columns:1fr}#login .side{padding:32px}}
+
+/* ---------- APP CHROME ---------- */
+.top{background:var(--bg);color:#fff;display:flex;align-items:center;gap:16px;padding:10px 20px;position:sticky;top:0;z-index:5}
+.top .brand{font-weight:600;letter-spacing:.02em}
+.top .db{font-size:12px;color:#9fb3c8}.top .db b{color:#fff}
+.top .spacer{flex:1}
+.top button{padding:7px 12px;font-size:13px}
+.page{padding:18px 24px;max-width:1400px;margin:0 auto}
+.page.wide{max-width:1880px}  /* buku besar valas: 16 kolom */
+.crumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{text-decoration:none}
+.crumb span.cur{color:var(--ink);font-weight:500}
+.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+
+/* ---------- COMPANIES ---------- */
+.cohead{display:flex;align-items:flex-start;gap:16px;margin-bottom:14px}
+.cohead h2{margin:0;font-size:22px}
+.cohead .cnt{color:var(--muted);font-size:13px;margin-top:4px}
+.cohead .signed{margin-left:auto;text-align:right}
+.cohead .signed .as{font-size:20px;color:var(--muted)}.cohead .signed .as b{color:var(--ink)}
+.cohead .signed .em{font-size:13px;color:var(--brand)}
+.cotools{display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-bottom:10px}
+.cotools input{max-width:300px}
+table.co{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
+table.co th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px 14px;border-bottom:1px solid var(--line);background:#fff}
+table.co td{padding:13px 14px;border-bottom:1px solid #eef1f5;font-size:13.5px}
+table.co tr.r{cursor:pointer}
+table.co tr.r:nth-child(even) td{background:#f7f9fb}
+table.co tr.r:hover td{background:#e8f3fa}
+table.co tr.r.sel td{background:#d6ebf7}
+table.co .nm{font-weight:500}
+table.co .sl{font-size:11px;color:var(--muted)}
+.badge{display:inline-block;padding:4px 14px;border-radius:4px;color:#fff;font-size:12px;font-weight:500;background:var(--grey)}
+.badge.active{background:var(--green)}.badge.trial{background:var(--orange)}.badge.expired,.badge.inactive{background:#c62828}
+.hint{font-size:12px;color:var(--muted);margin:8px 0 0}
+
+/* ---------- CATALOG ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;align-items:start}
+.cat{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cat h3{margin:0;padding:14px 16px;font-size:15px;font-weight:500;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.cat h3 i{color:var(--muted);font-style:normal;font-size:11px}
+.cat a.it{display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--ink);text-decoration:none;font-size:13.5px}
+.cat a.it:hover{background:var(--row);color:var(--brand)}
+.cat a.it .st{color:#c9d2dd;font-size:14px}
+
+/* ---------- DESIGNER ---------- */
+.cattools{display:flex;justify-content:flex-end;margin-bottom:12px}
+.cat a.it .ed{margin-left:auto;color:#b7c3d0;font-size:12px;padding:2px 6px;border-radius:4px}
+.cat a.it .ed:hover{background:#e8f3fa;color:var(--brand)}
+.dz{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:1000px){.dz{grid-template-columns:1fr}}
+.chk{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.chk label{display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);margin:0;cursor:pointer;flex-wrap:wrap}
+.chk input{width:auto}
+table.cols{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;table-layout:fixed}
+table.cols th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.cols td{padding:6px 8px;border-bottom:1px solid #eef1f5;vertical-align:middle;overflow:hidden}
+table.cols tr:hover td{background:#f8fbfd}
+table.cols col.c-chk{width:34px}table.cols col.c-key{width:30%}table.cols col.c-lab{width:24%}table.cols col.c-smp{width:22%}table.cols col.c-role{width:118px}table.cols col.c-act{width:88px}
+table.cols input[type=text],table.cols select{padding:6px 8px;font-size:12.5px;width:100%;box-sizing:border-box}
+table.cols input[type=checkbox]{width:16px;height:16px;accent-color:var(--brand);cursor:pointer}
+table.cols .mv{cursor:pointer;color:var(--muted);padding:2px 3px;user-select:none;border-radius:4px}table.cols .mv:hover{background:#e8f3fa;color:var(--brand)}
+table.cols .key{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+table.cols .smp{color:#7b8794;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+table.cols tr.sub td{background:#fafcfe}table.cols tr.sub td:first-child{box-shadow:inset 3px 0 0 #cfe3f0}
+table.cols .chip{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.02em;color:#0b6a9c;background:#e3f0f9;border-radius:999px;padding:1px 8px;margin-top:3px;white-space:nowrap}
+table.cols .key.hasChip{white-space:normal}table.cols .key.hasChip .chip{display:block;width:max-content;margin-top:3px}
+table.cols .tg{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#e8f3fa;color:var(--brand);font-size:10px;margin-right:6px;cursor:pointer;vertical-align:middle}table.cols .tg:hover{background:var(--brand);color:#fff}
+table.cols .sub .key::before{content:'↳';color:#9fb3c8;margin:0 6px 0 2px}
+.prev{font-size:12px;color:var(--muted);margin-top:6px}
+.danger{background:#fff;color:var(--bad);border:1px solid var(--bad)}
+
+/* ---------- designer preview & crosstab ---------- */
+.mock{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;margin-top:8px;font-size:10px;color:var(--muted)}
+.mock table{width:100%;border-collapse:collapse;font-size:9.5px;table-layout:fixed}
+.mock th{background:var(--head);color:#fff;padding:3px 5px;text-align:left;font-weight:500}
+.mock td{padding:3px 5px;border-bottom:1px solid #eef1f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mock .r{text-align:right}.mock .ttl{color:var(--brand);font-weight:600;padding:5px 2px 2px;border:0}
+.mock .sa td{background:var(--sa)}.mock .tot td{background:#dbe9f3;font-weight:600}
+.mock .rh{background:#e8f3fa;font-weight:500}
+.mock table.xm th{background:#0e7fb8;color:#fff;text-align:center;padding:3px 4px;border:1px solid rgba(255,255,255,.35)}.mock table.xm th.grp{background:#0b6a9c}.mock table.xm th.sub{background:#1a6fa3}.mock table.xm th.rh{background:#e8f3fa;color:#1b2430;text-align:left}
+.mock table.xm td{padding:3px 4px;border-bottom:1px solid #eef1f5}.mock table.xm td.r{text-align:right}.mock table.xm td.sub{background:#f3f6fa}.mock table.xm tr.tot td{font-weight:600;background:#e9eff6}
+.chk label small{color:#6b7a90;font-weight:400}
+.mock .cap{margin-top:6px;font-size:11px}
+.xt{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xt .box{border:1px solid var(--line);border-radius:8px;padding:10px;min-height:60px}
+.xt .box h5{margin:0 0 6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;background:#e8f3fa;color:var(--brand2);border-radius:999px;padding:3px 10px;font-size:12px;margin:2px}
+.pill b{cursor:pointer}
+.xt select{margin-top:6px}
+#dzCols .sumcol{display:table-cell}
+.mv.tg{font-size:12px;color:var(--brand);margin-right:2px}
+.pill{cursor:grab;user-select:none}.pill:active{cursor:grabbing}.pill .grip{font-style:normal;color:#9aa8b8;margin-right:5px;letter-spacing:-2px}
+.pill.dragging{opacity:.4}.pill.over{outline:2px dashed var(--brand);outline-offset:1px}
+#xRows.over,#xCols.over{background:#eef6fb;border-radius:6px}
+tr.drag{cursor:grab}tr.drag.dragging{opacity:.4}tr.drag.over td{border-top:2px solid var(--brand)}
+table.gl th.rh{background:#e8f3fa;color:var(--ink)}
+table.gl td.rh{background:#f5f8fb;font-weight:500}
+table.gl thead th{position:sticky;top:0;z-index:1}
+/* crosstab */
+table.gl.xtab th{white-space:normal;overflow-wrap:normal;word-break:normal;text-align:center;vertical-align:middle;border-right:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35)}
+table.gl.xtab th.grp{background:#0b6a9c}
+table.gl.xtab th.r{text-align:center}
+table.gl.xtab th.sub{background:#1a6fa3;color:#fff;font-weight:600}
+table.gl.xtab th.rh{text-align:left;border-right:1px solid #d5dde6;border-bottom:1px solid #d5dde6}
+table.gl.xtab th:last-child,table.gl.xtab td:last-child{border-right:0}
+table.gl.xtab td{background:#fff;border-bottom:1px solid #e9eef3;border-right:1px solid #e9eef3}
+table.gl.xtab td.rh{background:#fff;font-weight:400;text-align:left}
+table.gl.xtab td.rh:first-child{color:#5b6b7f}
+table.gl.xtab td.sub{background:#f3f6fa}
+table.gl.xtab tr.trx:nth-child(even) td{background:#fff}
+table.gl.xtab tr.trx:hover td{background:#fbfdff}
+table.gl.xtab tr.xrh td{font-weight:600;color:var(--brand2);padding-top:10px;border-bottom:0;border-right:0}
+table.gl.xtab tr.xrh td.rh,table.gl.xtab tr.xrt td.rh,table.gl.xtab tr.xrg td.rh{white-space:nowrap}
+table.gl.xtab tr.xrt td{font-weight:600;background:#f5f8fb;border-top:1px solid #9fb3c8;border-bottom:1px solid var(--brand)}
+table.gl.xtab tr.xrt td.sub{background:#e9eff6}
+table.gl.xtab tr.xrg td{font-weight:700;color:var(--brand2);background:#eef4fa;border-top:1px solid var(--ink);border-bottom:3px double var(--ink)}
+table.gl.xtab tr.xrg td.sub{background:#e1eaf4}
+table.gl.xtab tr.tot td{font-weight:600;background:#e9eff6}
+
+/* ---------- REPORT ---------- */
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.mbox .grid{grid-template-columns:1fr;gap:14px}.mbox .grid .c2{grid-column:auto}
+.mbox .grid label{font-size:13px;text-transform:none;letter-spacing:0;color:#4a5668;font-weight:500;margin-bottom:6px}
+.mbox input,.mbox select{padding:10px 12px;font-size:14px}
+.rng{display:flex;align-items:center;gap:10px}.rng>div,.rng>input{flex:1}.rng .arr{color:#9aa8b8;font-size:18px;flex:0 0 auto}
+.mhead{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}.mhead b{font-size:18px;font-weight:600}.mhead .ico{color:var(--brand);font-size:18px}
+.mbox .actions{border-top:1px solid var(--line);padding-top:14px;margin-top:18px}
+#fApply{min-width:90px}
+.cqi{white-space:nowrap}.cqi.ok{color:#1a7f37}.cqi.no{color:var(--bad)}.cqi small{color:var(--muted)}
+.srvbox{display:flex;align-items:center;gap:10px;background:#f1f4f8;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px}.srvbox .mono{flex:1}.srvbox .dot{color:#2ecc71;font-size:13px}.srvbox .dot.off{color:#e74c3c}.srvbox .pen{background:none;border:0;color:var(--muted);cursor:pointer;font-size:15px;padding:0 2px}.srvbox .pen:hover{color:var(--brand)}
+.cqrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13px}.cqi{white-space:nowrap}.cqi.ok{color:#1a7f37}.cqi.no{color:var(--bad)}.cqi a{text-decoration:none;color:var(--muted)}.cqrow button.sm{padding:4px 10px;font-size:12px}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1f2d3d;color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .25s;z-index:9999;display:flex;gap:10px;align-items:center}#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast span{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#2ecc71;color:#fff;align-items:center;justify-content:center;font-weight:700;font-size:13px}#toast.err span{background:#e74c3c}
+.fchk{border:1px solid #f0d78c;background:#fffaf0;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:13px;color:var(--ink)}.fchk.dubious{border-color:#f3c0c0;background:#fff6f6}.fchk .fact{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.fchk .prev{margin-top:6px}
+#dzFil th{letter-spacing:.03em;padding:8px 6px}#dzFil td{padding:6px 5px}
+.aibox{margin-top:10px;border:1px solid #cfe0ff;background:linear-gradient(180deg,#f3f7ff,#fff);border-radius:10px;padding:12px 14px;font-size:13px}
+.aibox .aih{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.aibox .aih b{font-size:14px}.aibox .conf{font-size:11px;padding:2px 8px;border-radius:999px;background:#e8f0ff;color:#2b5bd7}.aibox .conf.sedang{background:#fff3d6;color:#8a5a00}.aibox .conf.rendah{background:#fde2e2;color:#a12a2a}
+.aibox ul{margin:8px 0 0 18px;padding:0}.aibox li{margin:3px 0}.aibox .nt{color:var(--muted)}.aibox .src{font-size:11px;color:var(--muted);margin-top:8px}.aibox textarea{width:100%;min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;margin-top:6px}
+.aibox .llm{margin-top:10px;padding-top:8px;border-top:1px dashed #cfe0ff}.aibox button.sm{padding:4px 10px;font-size:12px}
+.fout{margin:14px 0 4px;padding-top:12px;border-top:1px dashed var(--line)}.fout label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.fout select{width:100%}
+.grid .c2{grid-column:span 2}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
+.actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.status{font-size:13px;color:var(--muted)}
+.rtool{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.rbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+button.ic{width:36px;height:36px;padding:0;border-radius:8px;background:#fff;color:var(--brand);border:1px solid var(--line);font-size:17px;line-height:1}button.ic:hover{background:#eef6fb}
+button.sm{padding:7px 12px;font-size:12.5px}
+.ld{display:inline-flex;align-items:center;gap:6px;color:var(--brand);font-style:italic;font-weight:500;font-size:12.5px;margin-left:6px}
+.spin{width:12px;height:12px;border:2px solid #cfe3f0;border-top-color:var(--brand);border-radius:50%;display:inline-block;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.pbar{height:4px;background:#e3e8ef;border-radius:2px;overflow:hidden;margin:-12px 0 14px}.pbar i{display:block;height:100%;width:0;background:var(--brand);transition:width .3s}
+.fsum{font-size:13px;color:var(--muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--line);text-align:left;display:flex;flex-wrap:wrap;gap:6px 16px}.fsum b{color:var(--ink);font-weight:500}
+.modal{position:fixed;inset:0;background:rgba(15,27,45,.45);z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;overflow:auto}
+
+.mbox{background:#fff;border-radius:12px;width:600px;max-width:100%;padding:18px 20px 16px;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.mhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}.mhead b{font-size:15px}.mhead .x{margin-left:auto;background:none;border:0;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px}.mhead .x:hover{color:var(--ink)}
+.lk{position:relative}
+.lk .list{position:absolute;z-index:9;left:0;right:0;top:100%;background:#fff;border:1px solid var(--line);border-radius:6px;max-height:240px;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.lk .list div{padding:7px 10px;cursor:pointer;font-size:13px;display:flex;gap:10px;align-items:baseline}.lk .list div:hover{background:var(--row)}
+.lk .list .lc{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--brand);min-width:88px;flex:0 0 auto;white-space:nowrap}
+.lk .list .ln{flex:1;color:var(--ink)}.lk .list div.on{background:#eef6fb}.lk .list .lk-ok{color:#1e9e5a;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{background:#e8f3fa;color:var(--brand2);border-radius:999px;padding:3px 10px;font-size:12px}
+.chip b{cursor:pointer;margin-left:6px}
+
+.paper{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 20px 30px;min-height:200px;overflow-x:auto}
+.rpt-head{text-align:center;margin:4px 0 16px}
+.rpt-head h2{margin:0;font-size:20px}.rpt-head .t{color:var(--brand);font-size:15px}.rpt-head .p{color:var(--bad);font-size:13px}
+table.gl{border-collapse:collapse;font-size:11.5px;table-layout:fixed;width:100%;min-width:1150px}
+table.gl th{background:var(--head);color:#fff;text-align:left;padding:6px 6px;font-weight:500;white-space:normal;line-height:1.15;vertical-align:middle}
+table.gl td{padding:5px 6px;border-bottom:1px solid #eef1f5;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}
+table.gl tr.title td{border:0;padding:18px 4px 6px;font-size:13.5px;font-weight:600;color:var(--brand);overflow:visible;white-space:nowrap}
+table.gl tr.title:first-child td{padding-top:4px}
+table.gl tr.sa td{background:var(--sa)}
+table.gl tr.trx:nth-child(even) td{background:var(--row)}
+table.gl tr.tot td{background:#dbe9f3;font-weight:600}
+table.gl tr.gtot td{background:#eaf1f8}
+table.gl td .jn{line-height:1.3}
+table.gl tr.gtot td:first-child{padding-left:calc(6px + var(--lvl,0)*18px)}
+table.gl tr.blank td{border:0;height:6px;padding:0}
+table.gl td.r,table.gl th.r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-left:8px}
+table.gl.xtab th.r,table.gl.xtab th.sub{white-space:normal;overflow-wrap:normal;word-break:normal}
+table.gl td.nw{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.online #btnNewRpt,body.online #btnXlsxDirect,body.online #srvLoc,body.online .it .ed,body.online #prefRow{display:none!important}
+#dzCurWrap .curgrid{display:grid;grid-template-columns:150px 1fr 60px 80px;gap:6px 8px;align-items:center;margin-top:4px}
+#dzCurWrap .curgrid.sec{grid-template-columns:150px 1fr 1fr 1fr;margin-top:10px}
+#dzCurWrap .curgrid .prev{margin:0}
+/* buku besar valas: header 2 tingkat NILAI USD / NILAI IDR (warna sama); angka tidak boleh menimpa kolom sebelahnya */
+table.gl.valas tr.h2 th{text-align:center;border-right:1px solid rgba(255,255,255,.35)}
+table.gl.valas tr.h2 th.r{text-align:right}
+table.gl.valas tr.h2 th.grp{background:var(--brand2);letter-spacing:.04em;font-weight:600;border-bottom:1px solid rgba(255,255,255,.35)}
+table.gl.valas tr.h2b th{border-right:1px solid rgba(255,255,255,.35)}
+table.gl.valas td.r{overflow:hidden;text-overflow:ellipsis}
+/* trial balance: header 3 tingkat (tidak sticky agar baris header tidak saling menimpa) */
+table.gl.tb thead th{position:static;text-align:center;vertical-align:middle;border-right:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35);white-space:normal}
+table.gl.tb thead th.cur{background:var(--brand2);letter-spacing:.04em;font-weight:600}
+table.gl.tb thead tr.h2 th{font-size:10.5px}
+table.gl.tb td{border-right:1px solid #eef1f5}
+table.gl.tb td.gs{border-left:2px solid #c9d6e3}
+table.gl.tb td.r{overflow:hidden;text-overflow:ellipsis}
+table.gl.tb tr.tot td{border-top:1px solid var(--ink)}
+/* jurnal: kepala transaksi tebal, Balance bergaris, jarak antar transaksi */
+table.gl.jr tr.jh td{font-weight:600;background:#f3f7fb;border-top:8px solid #fff}
+table.gl.jr tr.jd td{background:#fff}
+table.gl.jr tr.jb td{font-weight:600;background:#e9eff6;border-top:1px solid #9fb3c8}
+#celltip{position:fixed;z-index:9999;max-width:520px;background:#1f2a3a;color:#fff;font-size:12.5px;line-height:1.4;padding:7px 10px;border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none;white-space:pre-wrap;overflow-wrap:anywhere;display:none}
+.more{text-align:center;color:var(--muted);font-size:12px;padding:14px}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* ---------- LOADING OVERLAY ---------- */
+#ov{position:fixed;inset:0;background:rgba(15,27,45,.55);z-index:50;display:flex;align-items:center;justify-content:center}
+#ov .box{background:#fff;border-radius:12px;padding:26px 30px;width:420px;max-width:92vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.spin{width:44px;height:44px;border:4px solid #dbe9f3;border-top-color:var(--brand);border-radius:50%;margin:0 auto 14px;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#ov h4{margin:0 0 4px;font-size:15px}
+#ov .sub{font-size:13px;color:var(--muted);min-height:18px}
+#ov .bar{height:8px;background:#e3e8ef;border-radius:4px;overflow:hidden;margin:14px 0 6px}
+#ov .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .25s}
+#ov .pct{font-size:12px;color:var(--muted)}
+
+@media print{.top,.panel,.actions,.more,.crumb{display:none!important}.page{padding:0;max-width:none}.paper{border:0;padding:0;overflow:visible}table.gl{font-size:9.5px}table.gl tr.title td{break-after:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<section id="login">
+  <div class="side">
+    <div class="logo"><img src="logo.png" alt="Zahir"><span>Insight</span></div>
+    <div class="hero">
+      <!-- ilustrasi laporan (SVG) -->
+      <svg viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="gp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f3f6fa"/></linearGradient>
+          <linearGradient id="gb" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e8503a"/><stop offset="1" stop-color="#f58a6e"/></linearGradient>
+          <linearGradient id="gc" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#0e7fb8"/><stop offset="1" stop-color="#5ab4e0"/></linearGradient>
+          <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0f1b2d" flood-opacity=".14"/></filter>
+        </defs>
+        <circle cx="430" cy="80" r="70" fill="#fde9e5"/>
+        <circle cx="70" cy="330" r="46" fill="#e4f1f9"/>
+        <!-- halaman belakang -->
+        <rect x="124" y="64" width="300" height="300" rx="16" fill="#e3e9f0" transform="rotate(-4 274 214)"/>
+        <!-- halaman depan -->
+        <g filter="url(#sh)"><rect x="110" y="50" width="300" height="310" rx="16" fill="url(#gp)"/></g>
+        <rect x="110" y="50" width="300" height="34" rx="16" fill="#0f1b2d"/><rect x="110" y="70" width="300" height="14" fill="#0f1b2d"/>
+        <circle cx="132" cy="67" r="5" fill="#e8503a"/><circle cx="148" cy="67" r="5" fill="#f2a93b"/><circle cx="164" cy="67" r="5" fill="#2db36a"/>
+        <!-- judul & baris teks -->
+        <rect x="134" y="104" width="120" height="10" rx="5" fill="#1b2a41"/>
+        <rect x="134" y="122" width="200" height="6" rx="3" fill="#cbd5e1"/>
+        <!-- grafik batang -->
+        <rect x="134" y="250" width="26" height="60" rx="5" fill="url(#gc)"/>
+        <rect x="170" y="222" width="26" height="88" rx="5" fill="url(#gb)"/>
+        <rect x="206" y="236" width="26" height="74" rx="5" fill="url(#gc)"/>
+        <rect x="242" y="196" width="26" height="114" rx="5" fill="url(#gb)"/>
+        <rect x="278" y="214" width="26" height="96" rx="5" fill="url(#gc)"/>
+        <line x1="134" y1="312" x2="386" y2="312" stroke="#e3e8ef" stroke-width="2"/>
+        <!-- garis tren -->
+        <polyline points="147,236 183,206 219,220 255,176 291,194 327,160 363,170" fill="none" stroke="#0e7fb8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="363" cy="170" r="6" fill="#fff" stroke="#0e7fb8" stroke-width="3"/>
+        <!-- tabel kecil kanan -->
+        <g transform="translate(318 104)">
+          <rect width="68" height="8" rx="4" fill="#e3e8ef"/><rect y="16" width="56" height="8" rx="4" fill="#e3e8ef"/><rect y="32" width="64" height="8" rx="4" fill="#e3e8ef"/><rect y="48" width="44" height="8" rx="4" fill="#e3e8ef"/>
+        </g>
+        <!-- kartu angka melayang -->
+        <g filter="url(#sh)" transform="translate(356 286)">
+          <rect width="128" height="62" rx="12" fill="#fff"/>
+          <rect x="14" y="14" width="40" height="7" rx="3.5" fill="#cbd5e1"/>
+          <text x="14" y="46" font-family="IBM Plex Sans, system-ui" font-size="18" font-weight="600" fill="#1b2a41">1.250.000</text>
+          <circle cx="110" cy="18" r="8" fill="#e6f6ec"/><path d="M106 18l3 3 5-6" stroke="#2db36a" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </g>
+        <!-- centang -->
+        <g filter="url(#sh)" transform="translate(44 150)">
+          <rect width="56" height="56" rx="14" fill="#e8503a"/>
+          <path d="M16 29l10 10 16-20" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="tag">Laporan Zahir, cepat dan ringan — langsung dari data Anda.</div>
+    <div class="mono" style="font-size:11px;color:#9fb3c8">v__APP_VER__</div>
+  </div>
+  <div class="form">
+    <form class="card" id="frmLogin" autocomplete="on">
+      <h2>Masuk</h2>
+      <p class="sub">Masuk ke Zahir Insight dengan akun Zahir Anda.</p>
+      <div class="field"><label>Server</label>
+        <div style="display:flex;gap:8px"><input id="server" placeholder="demo.zahirerp.com atau http://192.168.1.10:8989" list="srvList" required><button class="ghost" type="button" id="btnSaveSrv" title="Simpan server ini sebagai bawaan">Simpan</button></div>
+        <datalist id="srvList"></datalist><div class="prev" id="srvSaved" style="min-height:14px;color:var(--ok)"></div></div>
+      <div class="field"><label>Email</label><input id="user" type="email" placeholder="nama@perusahaan.com" required></div>
+      <div class="field"><label>Password</label><input id="pass" type="password" required></div>
+      <button id="btnLogin" type="submit">Masuk</button>
+      <div class="err" id="loginErr"></div>
+      <div class="hide" id="srvLoc" style="margin-top:16px"><label>Lokasi server</label><div class="srvbox"><span class="mono" id="srvUrl">http://localhost:3300</span><span class="dot" id="srvDot" title="Server hidup">●</span><button type="button" class="pen" id="srvEdit" title="Ganti port">✎</button></div><div class="prev" id="srvNote"></div></div>
+      <div class="prev hide" id="loginQuit" style="margin-top:12px;text-align:center">Aplikasi berjalan di latar belakang · <a href="#" id="btnQuitLogin">Tutup aplikasi</a></div>
+    </form>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<section id="app" class="hide">
+  <div class="top">
+    <span class="brand"><img src="logo.png" alt="Zahir" style="height:22px;vertical-align:middle;margin-right:6px">Insight <small style="opacity:.55;font-weight:400;font-size:11px" id="verLbl">v__APP_VER__</small></span>
+    <span class="db" id="whoami"></span>
+    <span class="spacer"></span>
+    <button class="ghost hide" id="btnDb">Ganti perusahaan</button>
+    <button class="warn" id="btnLogout">Keluar</button><button class="ghost hide" id="btnQuit" title="Mematikan Zahir Insight di komputer ini (server berhenti, tab ini tidak bisa dipakai lagi sampai dijalankan ulang)">Tutup aplikasi</button>
+  </div>
+
+  <!-- ---- halaman 1: pilih perusahaan ---- -->
+  <div class="page" id="pgCo">
+    <div class="cohead">
+      <div><h2>Pilih Perusahaan</h2><div class="cnt" id="coCnt">—</div></div>
+      <div class="signed"><div class="as">Signed as <b id="sName"></b></div><div class="em" id="sEmail"></div></div>
+    </div>
+    <div class="cotools"><input id="dbQ" placeholder="Cari Perusahaan" autocomplete="off"><button class="ghost" id="btnReload" title="Muat ulang">&#8635;</button></div>
+    <table class="co"><thead><tr><th style="width:40%">Perusahaan</th><th>Versi</th><th>Edisi</th><th>Kedaluarsa</th><th>Status</th></tr></thead><tbody id="coBody"></tbody></table>
+    <div class="hint">Klik dua kali baris perusahaan untuk membukanya, atau pilih lalu tekan Enter.</div>
+    <div class="err" id="dbErr"></div>
+    <details class="adv" style="margin-top:10px"><summary>Alamat database manual (slug)</summary>
+      <div style="display:flex;gap:8px;max-width:520px"><input id="manualDb" placeholder="namapt-pg.zahironline.com"><button class="ghost" id="btnManualDb" type="button">Buka</button></div>
+    </details>
+  </div>
+
+  <!-- ---- halaman 2: katalog laporan ---- -->
+  <div class="page hide" id="pgCat">
+    <div class="crumb"><a href="#" id="crumbCo">Perusahaan</a> › <span class="cur" id="catCo"></span> › <span class="cur">Laporan</span></div>
+    <div class="cattools"><button id="btnNewRpt">+ Laporan Baru</button></div>
+    <div class="cards" id="cards"></div>
+    <div class="prev" style="margin-top:18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="ghost sm" id="btnCqChk" title="Memastikan bb_trx, bb_saldo_awal, buku_besar_faktur_invoice ada di database ini; yang belum ada dibuat lewat API">Periksa custom query bawaan</button><span id="cqChk"></span><span id="buildInfo" style="margin-left:auto;color:#aab"></span></div>
+    <div class="prev" id="prefRow" style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap" title="Bila perkiraan jumlah baris melebihi angka ini, muncul konfirmasi sebelum data ditarik (Tetap lanjutkan / Batal). Berlaku untuk semua pemakai aplikasi ini.">Konfirmasi bila laporan lebih dari <input id="prefRowWarn" type="text" inputmode="numeric" style="width:110px;padding:3px 6px;border:1px solid #cfd6e0;border-radius:4px;text-align:right" placeholder="300.000"> baris <button class="ghost sm" id="prefSave">Simpan</button><span id="prefNote" style="color:#8a97a8">0 = tidak pernah bertanya</span></div>
+  </div>
+
+  <!-- ---- halaman 2b: perancang laporan ---- -->
+  <div class="page hide" id="pgDesign">
+    <div class="crumb"><a href="#" id="crumbBack2">Kembali ke Daftar Laporan</a> › <span class="cur" id="dzTitle">Laporan Baru</span></div>
+    <div class="dz">
+      <div class="panel">
+        <div class="field"><label>Judul laporan</label><input id="dzName" placeholder="mis. Penjualan per Pelanggan"></div>
+        <div class="field"><label>Kategori (kartu di katalog)</label>
+          <select id="dzCatSel"></select>
+          <input id="dzCat" placeholder="nama kategori baru, mis. Penjualan" class="hide" style="margin-top:6px"></div>
+        <div class="field"><label>Custom query (sumber data)</label>
+          <div style="display:flex;gap:8px"><input id="dzCq" placeholder="nama custom query, mis. bb_trx atau /api/v3/custom_queries/bb_trx"><button class="ghost" id="dzTest" type="button">Tes query</button></div>
+          <div id="dzTestPeriod" style="display:flex;gap:8px;align-items:center;margin-top:8px">
+            <span class="prev" style="margin:0;white-space:nowrap">Periode uji</span><input type="date" id="dzT1" style="max-width:160px"><span class="prev" style="margin:0">s/d</span><input type="date" id="dzT2" style="max-width:160px">
+          </div>
+          <div class="prev">Data diambil dari <span class="mono">/api/v3/custom_queries/&lt;nama&gt;</span>. Tes query mengambil 5 baris pada periode uji untuk membaca daftar field (periode sempit = query ringan). Bila kosong, otomatis dicoba mundur sampai 6 bulan.</div>
+          <div class="err" id="dzErr"></div>
+        </div>
+        <div class="field"><label>Bentuk tampilan</label>
+          <select id="dzMode">
+            <option value="table">Tabel umum — semua baris berurutan</option>
+            <option value="ledger">Buku besar — per akun dengan saldo berjalan</option>
+            <option value="crosstab">Crosstab (pivot) — nilai dirangkum, satu field jadi header menyamping</option>
+            <option value="tb">Trial balance 2 mata uang — saldo awal, mutasi, saldo akhir per akun</option>
+            <option value="journal">Jurnal per transaksi — kepala transaksi, baris akun &amp; Balance (2 mata uang)</option>
+          </select>
+          <div id="dzMock"></div>
+          <div class="prev" id="dzModeHint"></div>
+        </div>
+        <div class="field hide" id="dzCurWrap"><label>Mata uang &amp; label</label>
+          <div class="curgrid">
+            <span class="prev">Mata uang akun<br><small class="mono">debit_a / kredit_a</small></span><input id="dzCurA" placeholder="IDR"><span class="prev">desimal</span><input id="dzDecA" type="number" min="0" max="4" value="0">
+            <span class="prev">Mata uang dasar<br><small class="mono">debit / kredit</small></span><input id="dzCurB" placeholder="USD"><span class="prev">desimal</span><input id="dzDecB" type="number" min="0" max="4" value="2">
+          </div>
+          <div class="curgrid sec" id="dzSecRow">
+            <span class="prev">Judul kelompok</span><input id="dzSecB" placeholder="Beginning Balance"><input id="dzSecM" placeholder="Mutation"><input id="dzSecE" placeholder="Ending Balance">
+          </div>
+          <div class="prev" id="dzCurHint" style="margin-top:6px"></div>
+        </div>
+        <div class="field hide" id="dzSaldoWrap">
+          <label>Isi custom query sumber</label>
+          <select id="dzLedgerSrc">
+            <option value="legacy">Buku besar jadi — query sudah menghasilkan judul akun, saldo awal, transaksi &amp; total (mis. buku_besar_faktur_invoice)</option>
+            <option value="raw">Transaksi mentah + query saldo awal terpisah (mis. bb_trx + bb_saldo_awal, paling ringan)</option>
+          </select>
+          <div id="dzSaldoRow" style="margin-top:8px"><label>Custom query saldo awal</label><input id="dzSaldo" placeholder="mis. bb_saldo_awal"></div>
+        </div>
+        <div class="field hide" id="dzTotWrap">
+          <label>Kelompokkan berdasarkan <small style="text-transform:none;letter-spacing:0;color:#6b7a90">(opsional — tiap kelompok tampil dengan judul, header kolom, isi, lalu subtotal; bisa bertingkat)</small></label>
+          <div id="gRows" style="margin:4px 0"></div>
+          <select id="gAdd"><option value="">+ tambah field pengelompok…</option></select>
+          <div class="chk" style="margin-top:8px">
+            <label><input type="checkbox" id="gSub" checked> Subtotal di akhir tiap kelompok</label>
+            <label><input type="checkbox" id="gHide" checked> Sembunyikan kolom pengelompok di isi tabel <small>(nilainya sudah ada di judul kelompok)</small></label>
+            <label><input type="checkbox" id="tTot"> Baris Total di paling bawah <small>(menjumlahkan kolom angka; kolom kode/nomor/tanggal tidak dijumlahkan)</small></label>
+          </div>
+          <div class="prev" style="margin-top:10px">Field berformat Jasper (sort_key|tipe|lvl|nama|kode) dipecah otomatis setelah <b>Tes query</b>: bagian kode, nama, tipe, level, kunci urut muncul sebagai kolom terpisah di tabel Kolom — centang yang dipakai, ganti labelnya, atur urutannya.</div>
+          <input id="tLabKode" class="hide" value="KODE"><input id="tLabAkun" class="hide" value="AKUN">
+          <div id="tMock" style="margin-top:10px"></div></div>
+        <div class="field" id="dzFetchWrap"><label>Cara pengambilan data (bila ada filter tanggal)</label>
+          <div style="display:flex;gap:8px;align-items:center"><select id="dzFetch" style="flex:1">
+            <option value="once">Sekaligus — satu query untuk seluruh periode</option>
+            <option value="monthly">Per bulan — dipecah lalu digabung</option>
+            <option value="monthly_sum">Per bulan — dipecah lalu dijumlahkan per kelompok</option>
+          </select><button class="ghost" type="button" id="dzAi" title="Bingung pilih yang mana? AI membaca struktur SQL custom query ini lalu menyarankan cara pengambilan yang cocok">✦ Bingung? Minta rekomendasi AI</button></div>
+          <div class="prev" id="dzFetchHint" style="margin-top:6px"></div>
+          <div id="dzAiBox" class="aibox hide"></div>
+        </div>
+        <div class="field hide" id="dzXWrap"><label>Pengaturan crosstab</label>
+          <div class="xt">
+            <div class="box"><h5>Baris (ke bawah)</h5><div id="xRows"></div><select id="xRowAdd"><option value="">+ tambah field baris…</option></select><div class="prev" style="margin-top:8px">Judul kolom baris (nama field biasa mengikuti label di tabel Kolom)</div><div style="display:flex;gap:6px;margin-top:4px"><input id="xLabKode" placeholder="Judul kolom kode" value="KODE" style="width:40%"><input id="xLabAkun" placeholder="Judul kolom nama" value="AKUN"></div></div>
+            <div class="box"><h5>Header menyamping (kolom)</h5><div class="prev" style="margin-bottom:6px">Urutan 1 = tingkat paling atas. Seret pil untuk mengubah urutan, atau seret ke kotak sebelah untuk memindahkan.</div><div id="xCols"></div><select id="xColAdd"><option value="">+ tambah field kolom…</option></select></div>
+            <div class="box"><h5>Nilai yang dirangkum</h5><select id="xVal"></select><select id="xAgg"><option value="sum">Jumlah (SUM)</option><option value="count">Hitung baris (COUNT)</option><option value="avg">Rata-rata (AVG)</option><option value="min">Minimum</option><option value="max">Maksimum</option></select></div>
+            <div class="box"><h5>Total</h5><div class="chk">
+              <label><input type="checkbox" id="xTotRow" checked> Kolom TOTAL di ujung kanan <small>(jumlah semua kolom per baris)</small></label>
+              <input type="checkbox" id="xTotCol" checked class="hide">
+              <label><input type="checkbox" id="xTotGroup" checked> Subtotal per kelompok header <small>(mis. Total Brand, Total Factory)</small></label></div>
+              <div class="prev" style="margin-top:6px">Contoh di bawah ikut berubah saat dicentang. Baris Total di bawah selalu ada untuk crosstab biasa; untuk laporan berformat Jasper (laba rugi, neraca) tidak ditambahkan karena laporan sudah punya baris total sendiri.</div></div>
+          </div>
+          <div id="xMock" style="margin-top:10px"></div>
+          <div class="prev">Isi daftar field dengan <b>Tes query</b> dulu. Nilai berupa angka (debit, kredit, jumlah, qty). Beberapa field baris/kolom akan digabung bertingkat.</div>
+        </div>
+        <div class="field"><label>Filter laporan</label>
+          <table class="cols" id="dzFil"><colgroup><col style="width:18%"><col style="width:24%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:72px"></colgroup><thead><tr><th>Label</th><th>Parameter / kolom</th><th>Jenis</th><th>Sumber</th><th>Diterapkan</th><th></th></tr></thead><tbody></tbody></table><datalist id="dzColList"></datalist>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <select id="dzFilAdd" style="max-width:320px">
+              <option value="">+ tambah filter…</option>
+              <option value="date">Tanggal (rentang) — date.$gte / date.$lte</option>
+              <option value="account">Akun (pilih beberapa) — account_id</option>
+              <option value="account_range">Akun dari–hingga — account_code.$gte / $lte</option>
+              <option value="contact">Kontak — contact_id</option>
+              <option value="dept">Departemen — department_id</option>
+              <option value="proj">Proyek — project_id</option>
+              <option value="cost">Kode biaya — cost_code_id</option>
+              <option value="wh">Gudang — warehouse_id</option>
+              <option value="text">Teks bebas (parameter lain)</option>
+              <option value="endpoint">Dropdown dari endpoint lain</option>
+            </select>
+          </div>
+          <div style="margin-top:8px"><button class="ghost sm" type="button" id="dzFilCheck" title="Baca field map custom query dan periksa apakah tiap parameter filter dikenali">Periksa parameter filter</button><div id="dzFilChk" class="prev" style="margin-top:6px"></div></div>
+          <div class="prev"><b>Diterapkan</b>: <i>Parameter query</i> = nilai dikirim ke Zahir, nama parameter harus ada di <span class="mono">field</span> map custom query (disaring di server, cepat). <i>Di aplikasi</i> = untuk query yang tidak punya parameternya: seluruh data periode ditarik lalu disaring di sini dengan mencocokkan kolom hasil (id / kode / nama) — berlaku juga untuk ekspor langsung. Nama <b>parameter</b> harus ada di <span class="mono">field</span> map custom query. Jenis <b>Pilih banyak</b> mengirim satu request per nilai lalu digabung (seperti filter akun di buku besar). Dengan filter tanggal, data ditarik per bulan.</div>
+        </div>
+        <div class="actions">
+          <button id="dzSave">Simpan</button>
+          <button class="ghost" id="dzCancel" type="button">Batal</button>
+          <button class="danger hide" id="dzDelete" type="button">Hapus laporan</button>
+          <span class="status" id="dzStatus"></span>
+        </div>
+      </div>
+      <div class="panel">
+        <label>Kolom (dari hasil tes query)</label>
+        <div class="prev" id="dzColsHint">Klik <b>Tes query</b> untuk memuat daftar field. Kolom yang tidak dicentang disembunyikan; label bisa diganti; urutan diatur dengan ▲▼.</div>
+        <table class="cols hide" id="dzCols"><colgroup><col class="c-chk"><col class="c-key"><col class="c-lab"><col class="c-smp"><col class="c-role"><col class="c-act"></colgroup><thead><tr><th title="Tampilkan di laporan"></th><th>Field</th><th>Label kolom</th><th>Contoh nilai</th><th class="sumcol" title="Dipakai untuk subtotal/total tabel dan mode Per bulan — dijumlahkan. Otomatis: kolom angka dijumlahkan kecuali kode/nomor/tanggal">Peran</th><th></th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---- halaman 3: laporan ---- -->
+  <div class="page hide" id="pgRpt">
+    <div class="rtool">
+      <div class="crumb" style="margin:0"><a href="#" id="crumbBack">Laporan</a> › <span class="cur" id="rptCrumb"></span> <span class="ld hide" id="rLoad"><i class="spin"></i><span id="rLoadTxt"></span></span></div>
+      <div class="rbtns">
+        <button class="ic" id="btnRun" title="Tampilkan ulang dengan filter saat ini">⟳</button>
+        <button class="ic" id="btnFilter" title="Filter laporan">⚙</button>
+        <button class="ghost sm" id="btnXlsx" disabled>Ekspor Excel</button>
+        <button class="ghost sm" id="btnPrint" disabled>Cetak</button>
+        <button class="ghost sm" id="btnExpand" disabled>Muat semua</button>
+        <button class="ghost sm" id="btnXlsxDirect" title="Server yang menarik data dan menulis Excel — browser tidak menampung data, cocok untuk data sangat besar">Ekspor langsung</button>
+      </div>
+    </div>
+    <div class="status" id="status" style="margin:-6px 0 10px"></div>
+    <div id="fModal" class="modal hide"><div class="mbox">
+      <div class="mhead"><span class="ico">⚙</span><b id="fModalTitle">Filter laporan</b><button class="x" id="fClose" title="Tutup">✕</button></div>
+      <div class="grid" id="fGrid"></div>
+      <div class="fout"><label>Hasil</label><select id="fOut"><option value="view">Tampilkan laporan di layar</option><option value="xlsx">Ekspor langsung ke Excel (tanpa tampil)</option></select><div class="prev" id="fOutHint" style="margin-top:4px"></div></div>
+      <div class="actions" style="justify-content:flex-end"><button class="ghost" id="fCancel">Batal</button><button id="fApply">Ok</button></div>
+    </div></div>
+    <div id="rpt" class="paper">
+      <div class="pbar hide" id="rBar"><i></i></div>
+      <div class="rpt-head"><h2 id="rCo"></h2><div class="t" id="rTitle"></div><div class="p" id="rPer"></div><div class="fsum" id="rFil"></div></div>
+      <div id="rBody"></div>
+      <div class="more hide" id="more"></div>
+    </div>
+  </div>
+</section>
+
+<!-- loading overlay -->
+<div id="ov" class="hide"><div class="box"><div class="spin"></div><h4 id="ovTitle">Memproses…</h4><div class="sub" id="ovSub"></div><div class="bar"><i id="ovBar"></i></div><div class="pct" id="ovPct"></div></div></div>
+
+<script src="core.js?v=__APP_VER__"></script>
+<script src="xlsxw.js?v=__APP_VER__"></script>
+<script>
+/* ---------- katalog laporan (tambah laporan = tambah entri) ---------- */
+const CATALOG = [
+  { category:'Buku Besar', items:[
+    // mode 'raw': transaksi mentah (bb_trx) + saldo awal (bb_saldo_awal), dihitung di browser — jauh lebih ringan di DB.
+    // Bila kedua custom query itu belum ada di database, otomatis jatuh ke 'cq' (cara lama, per bulan).
+    { id:'bb', title:'Buku Besar - Faktur Pajak & Invoice', mode:'raw', cqTrx:'bb_trx', cqSaldo:'bb_saldo_awal', cq:'buku_besar_faktur_invoice' },
+    // valas: bb_trx_valas / bb_saldo_awal_valas membawa jurnalvc.debit_a & kredit_a → kolom KURS, DEBIT/KREDIT/SALDO (USD) di samping IDR
+    { id:'bb_usd', title:'Buku Besar Valas (USD) - Faktur Pajak & Invoice', mode:'raw', valas:true, cqTrx:'bb_trx_valas', cqSaldo:'bb_saldo_awal_valas', cq:null },
+  ]},
+  { category:'Neraca Saldo', items:[
+    // trial balance 2 mata uang dari akumulasi per akun (bb_saldo_awal_valas): saldo awal + mutasi periode, dihitung di browser.
+    // cur: curA = mata uang akun (debit_a/kredit_a), curB = mata uang dasar (debit/kredit); dec = jumlah desimal tampilan
+    { id:'tb_valas', title:'Trial Balance (IDR & USD)', mode:'tb', cq:'bb_saldo_awal_valas', cur:{curA:'IDR',curB:'USD',decA:0,decB:2},
+      filters:['date','account_range','account','dept','proj'] },
+  ]},
+  { category:'Jurnal', items:[
+    // satu baris per baris jurnal (jurnal_all_trx), dikelompokkan per transaksi: kepala, baris akun, Balance
+    { id:'jurnal_all', title:'Jurnal - All Transaction', mode:'journal', cq:'jurnal_all_trx', cur:{curA:'IDR',curB:'USD',decA:0,decB:2},
+      filters:['date','contact','dept','proj'] },
+  ]},
+];
+
+/* ---------- state & helpers ---------- */
+const S = { get(k){ try{ return JSON.parse(sessionStorage.getItem('zlv.'+k)); }catch{ return null; } }, set(k,v){ try{ sessionStorage.setItem('zlv.'+k, JSON.stringify(v)); }catch{} }, del(k){ try{ sessionStorage.removeItem('zlv.'+k); }catch{} } };
+// daftar server disimpan permanen (localStorage) supaya tetap ada setelah browser ditutup
+const L = { get(k){ try{ return JSON.parse(localStorage.getItem('zlv.'+k)); }catch{ return null; } }, set(k,v){ try{ localStorage.setItem('zlv.'+k, JSON.stringify(v)); }catch{} } };
+function saveServer(v){ v=(v||'').trim(); if(!v) return; const hist=[v, ...(L.get('servers')||[]).filter(x=>x!==v)].slice(0,8); L.set('servers',hist); $('#srvList').innerHTML=hist.map(h=>`<option value="${esc(h)}">`).join(''); }
+const $ = s => document.querySelector(s);
+let st = { server:null, token:null, client:'', me:null, companies:[], coEndpoint:null, dataBase:null, slug:'', company:null, cq:null, report:null, rows:[], accSel:[], ctSel:null, lookupsLoaded:false, ttypes:{} };
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtDate = s => { if(!s) return ''; const d = new Date(s+'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}); };
+function firstDayOfMonth(){ const d=new Date(); d.setDate(1); return ymd(d); }
+function today(){ return ymd(new Date()); }
+function headersData(){ const h={ 'x-zahir-base':st.dataBase, 'x-zahir-token':st.token }; if(st.client) h['x-zahir-client']=st.client; if(st.company?.id) h['x-zahir-company']=st.company.id; if(st.slug) h['x-zahir-slug']=st.slug; return h; }
+const NET={req:0,ms:0,bytes:0,reset(){ this.req=0; this.ms=0; this.bytes=0; }};  // statistik permintaan ke server Zahir (untuk status)
+async function zget(pathq){ const t0=performance.now(); const r=await fetch('/zapi'+pathq,{headers:headersData()}); const txt=await r.text(); NET.req++; NET.ms+=performance.now()-t0; NET.bytes+=txt.length; let j; try{ j=JSON.parse(txt); }catch{ j={error:txt.slice(0,200)}; } if(!r.ok) throw new Error(j?.error?.detail?.message||j?.error?.message||j?.error||('HTTP '+r.status)); return j; }
+async function post(url, body, extra={}){ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',...extra},body:JSON.stringify(body)}); const j=await r.json(); if(!r.ok) throw new Error(j.error||('HTTP '+r.status)); return j; }
+function listOf(j){ return j?.results || j?.data || (Array.isArray(j)?j:[]); }
+/* cari nilai primitif dari daftar nama kunci (struktur API bisa beda per versi) */
+function pick(obj, keys, depth=0, seen=new Set()){
+  if(!obj||typeof obj!=='object'||depth>4||seen.has(obj)) return undefined; seen.add(obj);
+  for(const k of keys){ if(obj[k]!=null && typeof obj[k]!=='object') return obj[k]; }
+  for(const v of Object.values(obj)){ const r=pick(v,keys,depth+1,seen); if(r!==undefined) return r; }
+  return undefined;
+}
+function findSlug(obj){ const v=pick(obj,['slug','url','api_url','base_url','host','domain','subdomain']); return (typeof v==='string' && /^(https?:\/\/)?[\w.-]+\.[a-z]{2,}(:\d+)?/i.test(v)) ? v : ''; }
+function coName(c){ return c?.company?.name || c?.name || c?.company_name || c?.title || '(tanpa nama)'; }
+function coId(c){ return c?.company?.id || c?.id || c?.company_id; }
+/* overlay */
+// progres di halaman laporan (bukan overlay): spinner + teks di breadcrumb, bar tipis di atas kertas
+const PG = { show(t,sub=''){ $('#rLoad').classList.remove('hide'); $('#rLoadTxt').textContent=sub||t; $('#rBar').classList.remove('hide'); this.set(0,''); }, set(p,txt){ $('#rBar').firstElementChild.style.width=Math.max(0,Math.min(100,p))+'%'; if(txt) $('#rLoadTxt').textContent=`(memuat · ${txt})`; }, sub(s){ if(!$('#rLoadTxt').textContent.includes('Baris')) $('#rLoadTxt').textContent=s; }, hide(){ $('#rLoad').classList.add('hide'); $('#rBar').classList.add('hide'); } };
+const ov = { show(t,sub=''){ $('#ovTitle').textContent=t; $('#ovSub').textContent=sub; this.set(0,''); $('#ov').classList.remove('hide'); }, set(p,txt){ $('#ovBar').style.width=Math.max(0,Math.min(100,p))+'%'; $('#ovPct').textContent=txt||''; }, sub(s){ $('#ovSub').textContent=s; }, hide(){ $('#ov').classList.add('hide'); } };
+function showPage(id){ for(const p of ['pgCo','pgCat','pgDesign','pgRpt']) $('#'+p).classList.toggle('hide', p!==id); $('#btnDb').classList.toggle('hide', id==='pgCo'); window.scrollTo(0,0); }
+
+/* ---------- login ---------- */
+(function initLogin(){ const hist=L.get('servers')||['demo.zahirerp.com']; $('#srvList').innerHTML=hist.map(h=>`<option value="${esc(h)}">`).join(''); $('#server').value=hist[0]||'';
+  $('#btnSaveSrv').onclick=()=>{ saveServer($('#server').value); $('#srvSaved').textContent='Tersimpan sebagai server utama'; setTimeout(()=>$('#srvSaved').textContent='',2500); }; })();
+$('#frmLogin').addEventListener('submit', async e=>{
+  e.preventDefault(); $('#loginErr').textContent=''; $('#btnLogin').disabled=true; $('#btnLogin').textContent='Menghubungkan…';
+  try{
+    const body={ server:$('#server').value, username:$('#user').value }; const pass=$('#pass').value; let hdr={};
+    const {jwk}=window.crypto?.subtle?await (await fetch('/auth/pubkey')).json():{jwk:null};
+    if(jwk){
+      const key=await crypto.subtle.importKey('jwk',jwk,{name:'RSA-OAEP',hash:'SHA-256'},false,['encrypt']);
+      const buf=await crypto.subtle.encrypt({name:'RSA-OAEP'},key,new TextEncoder().encode(pass));
+      body.password_enc=btoa(String.fromCharCode(...new Uint8Array(buf)));
+    } else hdr.Authorization='Basic '+btoa(unescape(encodeURIComponent($('#user').value+':'+pass)));
+    const r=await post('/auth/login',body,hdr);
+    st.server=r.server; st.token=r.me.access_token; st.me=r.me; st.client='';
+    saveServer($('#server').value);
+    S.set('sess',{server:st.server,token:st.token,me:st.me,client:st.client});
+    enterApp();
+  }catch(err){ $('#loginErr').textContent=err.message; }
+  finally{ $('#btnLogin').disabled=false; $('#btnLogin').textContent='Masuk'; }
+});
+
+/* ---------- app ---------- */
+function enterApp(){
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  const nm=`${st.me?.first_name||''} ${st.me?.last_name||''}`.trim()||st.me?.username||'';
+  $('#whoami').innerHTML=`<b>${esc(nm)}</b> · ${esc(st.me?.email||'')}`; $('#sName').textContent=nm; $('#sEmail').textContent=st.me?.email||'';
+  showPage('pgCo'); loadCompanies();
+}
+$('#btnLogout').onclick=()=>{ S.del('sess'); location.reload(); };
+async function quitApp(){ if(!confirm('Tutup Zahir Insight? Server di komputer ini berhenti; jalankan lagi lewat ikon Zahir Insight.')) return; try{ await fetch('/quit',{method:'POST'}); }catch{} document.body.innerHTML='<div style="font-family:sans-serif;padding:40px;text-align:center;color:#555"><h2>Zahir Insight sudah ditutup</h2><p>Tab ini bisa ditutup. Untuk membuka lagi, klik ikon Zahir Insight.</p></div>'; }
+$('#btnQuit').onclick=quitApp; $('#btnQuitLogin').onclick=e=>{ e.preventDefault(); quitApp(); };
+$('#btnDb').onclick=()=>{ showPage('pgCo'); };
+$('#btnReload').onclick=()=>loadCompanies();
+$('#crumbCo').onclick=e=>{ e.preventDefault(); showPage('pgCo'); };
+$('#crumbBack').onclick=e=>{ e.preventDefault(); showPage('pgCat'); };
+
+/* ---------- companies ---------- */
+let dbSel=-1;
+async function loadCompanies(){
+  $('#coBody').innerHTML='<tr><td colspan="5" class="empty">Mengambil daftar perusahaan…</td></tr>'; $('#dbErr').textContent=''; $('#coCnt').textContent='—';
+  try{
+    const r=await post('/auth/companies',{server:st.server,token:st.token,client:st.client});
+    st.coEndpoint=r.endpoint;
+    st.companies=(r.results||[]).map(c=>({ raw:c, id:coId(c), name:coName(c), slug:findSlug(c),
+      version: pick(c,['version','product_version','app_version','api_version']) ?? '',
+      edition: pick(c,['edition','product_type','product','package','variant_name']) ?? '',
+      expired: pick(c.membership||c.company?.membership||{},['expired_at','expired_date','expiry_date','expire_at','expired','end_date']) ?? pick(c,['expired_at','expired_date','expiry_date','expire_at','expired','end_date']) ?? '',
+      // status mengikuti MEMBERSHIP (seperti halaman Pilih Perusahaan di Zahir ERP), bukan field status perusahaan
+      status: normStatus(c.membership?.status ?? c.company?.membership?.status ?? pick(c,['membership_status','status'])) }))
+      .map(c=>{ const d=c.expired?new Date(c.expired):null; if(d&&!isNaN(d)&&d<new Date(new Date().toDateString())&&c.status!=='INACTIVE') c.status='Expired'; return c; })   // kedaluwarsa sudah lewat -> Expired
+      .filter(c=>c.status!=='INACTIVE')          // perusahaan non-aktif tidak ditampilkan (sama dengan Zahir ERP)
+      .sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
+    if(!st.companies.length){ $('#coBody').innerHTML=''; $('#dbErr').textContent='Daftar perusahaan tidak bisa diambil ('+(r.notes||[]).join('; ')+'). Isi alamat database manual.'; return; }
+    renderCo(''); $('#dbQ').focus();
+  }catch(err){ $('#coBody').innerHTML=''; $('#dbErr').textContent=err.message; }
+}
+// Normalisasi status: subscribe/post subscribe/active -> Active (hijau); inactive -> disembunyikan
+function normStatus(v){ const k=String(v??'').toLowerCase().replace(/[^a-z]/g,''); if(!k) return ''; if(/inactive|notactive|nonactive|nonaktif|tidakaktif|disabled|suspend|deactiv/.test(k)) return 'INACTIVE';   /* semua bentuk 'tidak aktif' dikenali sebelum cek 'active' */ if(k.includes('postsubscri')) return 'Post Subscribe'; if(k.includes('subscri')||k.includes('active')) return 'Active'; if(k.includes('trial')) return 'Trial'; if(k.includes('expire')) return 'Expired'; if(k.includes('await')||k.includes('payment')) return 'Awaiting Payment'; return String(v); }
+function badge(s){ const cls=s==='Active'?'active':s==='Trial'?'trial':(s==='Expired'||s==='Post Subscribe')?'expired':''; return s?`<span class="badge ${cls}">${esc(s)}</span>`:''; }
+function fmtExp(v){ if(!v) return ''; const d=new Date(v); return isNaN(d)?esc(v):d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+function renderCo(q){
+  q=(q||'').trim().toLowerCase();
+  const items=st.companies.map((c,i)=>({c,i})).filter(({c})=>!q||(c.name+' '+c.slug).toLowerCase().includes(q));
+  $('#coCnt').textContent=`${items.length} Perusahaan`+(q?` (dari ${st.companies.length})`:'');
+  $('#coBody').innerHTML=items.length?items.map(({c,i})=>`<tr class="r${i===dbSel?' sel':''}" data-i="${i}"><td><div class="nm">${esc(c.name)}</div><div class="sl mono">${esc(c.slug||c.id||'')}</div></td><td>${esc(c.version)}</td><td>${esc(String(c.edition).toUpperCase())}</td><td>${fmtExp(c.expired)}</td><td>${badge(c.status)}</td></tr>`).join('')
+    :'<tr><td colspan="5" class="empty">Tidak ada perusahaan yang cocok.</td></tr>';
+  $('#coBody').querySelectorAll('tr.r').forEach(el=>{ el.onclick=()=>{ dbSel=+el.dataset.i; $('#coBody').querySelectorAll('tr.r').forEach(x=>x.classList.toggle('sel',+x.dataset.i===dbSel)); }; el.ondblclick=()=>openCompany(st.companies[+el.dataset.i]); });
+}
+$('#dbQ').addEventListener('input',e=>{ dbSel=-1; renderCo(e.target.value); });
+$('#dbQ').addEventListener('keydown',e=>{
+  const vis=[...$('#coBody').querySelectorAll('tr.r')]; if(!vis.length) return; let idx=vis.findIndex(x=>+x.dataset.i===dbSel);
+  if(e.key==='ArrowDown'){ e.preventDefault(); idx=Math.min(vis.length-1,idx+1); vis[idx].click(); vis[idx].scrollIntoView({block:'nearest'}); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); idx=Math.max(0,idx-1); vis[idx].click(); vis[idx].scrollIntoView({block:'nearest'}); }
+  if(e.key==='Enter'){ e.preventDefault(); if(idx<0&&vis.length===1) idx=0; if(idx>=0) openCompany(st.companies[+vis[idx].dataset.i]); }
+});
+async function openCompany(c){
+  ov.show('Membuka perusahaan', c.name); ov.set(20,'');
+  let detail=c.raw;
+  try{ detail=await post('/auth/company',{server:st.server,token:st.token,client:st.client,id:c.id,endpoint:st.coEndpoint}); }catch{}
+  if(detail?.access_token) st.token=detail.access_token;
+  st.slug=(findSlug(detail)||c.slug||'').replace(/^https?:\/\//i,'').replace(/\/+$/,'');
+  st.company={id:c.id,name:coName(detail)||c.name}; st.dataBase=st.server;
+  ov.set(55,''); await useDatabase();
+}
+$('#btnManualDb').onclick=async()=>{ const v=$('#manualDb').value.trim().replace(/^https?:\/\//i,'').replace(/\/+$/,''); if(!v) return; ov.show('Membuka database',v); st.company={id:null,name:v}; st.slug=v; st.dataBase=st.server; await useDatabase(); };
+async function useDatabase(){
+  const probe=()=>zget('/api/v2/accounts?per_page=1');
+  try{ await probe(); }
+  catch(err){
+    if(st.slug&&/\./.test(st.slug)){ try{ st.dataBase='https://'+st.slug; await probe(); }catch(e2){ st.dataBase=st.server; ov.hide(); $('#dbErr').textContent='Tidak bisa mengakses database ini: '+err.message; return; } }
+    else { ov.hide(); $('#dbErr').textContent='Tidak bisa mengakses database ini: '+err.message; return; }
+  }
+  $('#dbErr').textContent=''; ov.set(100,''); ov.hide();
+  S.set('sess',{...S.get('sess'),token:st.token,dataBase:st.dataBase,slug:st.slug,company:st.company});
+  $('#whoami').innerHTML=`<b>${esc(st.company.name)}</b> · ${esc(st.slug||'')}`;
+  st.lookupsLoaded=false; LOOK_CLEAR(); $('#rpt').classList.add('hide'); $('#status').textContent='';
+  buildCatalog(); showPage('pgCat');
+  ensureBuiltinCq();
+}
+// custom query bawaan (bb_trx, bb_saldo_awal, buku_besar_faktur_invoice) yang belum ada di database ini dibuat otomatis lewat API
+async function ensureBuiltinCq(manual){
+  const box=$('#cqChk'); if(manual) box.innerHTML='<span class="spin"></span> Memeriksa custom query bawaan di database ini…';
+  try{ const r=await fetch('/cq/ensure',{method:'POST',headers:headersData()}); const j=await r.json();
+    if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    if(!j.checked){ const m='Tidak bisa memeriksa custom query bawaan: '+(j.reason||'daftar tidak terbaca'); if(manual) box.innerHTML=`<span style="color:var(--bad)">${esc(m)}</span>`; else toast(m,'err'); return; }
+    const made=j.results.filter(x=>x.status==='dibuat').map(x=>x.name); const bad=j.results.filter(x=>/gagal/.test(x.status));
+    if(made.length) toast('Custom query bawaan dibuat di database ini: '+made.join(', '));
+    if(bad.length) toast('Custom query bawaan belum bisa dibuat: '+bad.map(x=>x.name+' ('+x.status.replace('gagal: ','')+')').join('; '),'err');
+    if(manual) box.innerHTML=j.results.map(x=>`<span class="cqi ${/gagal/.test(x.status)?'no':'ok'}">${/gagal/.test(x.status)?'✗':'✓'} <span class="mono">${esc(x.name)}</span> <small>${esc(x.status)}</small></span>`).join(' &nbsp; ');
+  }catch(err){ const m='Pemeriksaan custom query bawaan gagal: '+err.message; if(manual) box.innerHTML=`<span style="color:var(--bad)">${esc(m)}</span>`; else toast(m,'err'); }
+}
+$('#btnCqChk').onclick=()=>ensureBuiltinCq(true);
+
+/* ---------- catalog (bawaan + buatan user dari server) ---------- */
+let CUSTOM=[];
+function builtinReports(){ return CATALOG.flatMap(c=>c.items.map(i=>({...i,category:c.category}))); }
+function allReports(){ const ov=new Set(CUSTOM.map(x=>x.id)); return [...builtinReports().filter(b=>!ov.has(b.id)), ...CUSTOM]; }
+// desain awal laporan bawaan (bisa diubah di perancang; disimpan sebagai desain kustom dengan id yang sama)
+// valas: kolom USD ikut bila diminta, atau desain lama sudah memuatnya
+const ledgerFields=(old=[],valas)=>{ const m=new Map(old.map(c=>[c.key,c])); const v=valas??old.some(c=>VALAS_COLS.includes(c.key)); return ledgerColsOf(v).map(k=>({key:k,label:m.get(k)?.label||LABELS[k],show:m.get(k)?.show!==false})); };
+const builtinFilters=b=>Array.isArray(b.filters)?filtersOf(b).map(f=>({...f})):BUILTIN_FILTERS.map(f=>({...f}));
+function builtinAsDesign(b){
+  if(b.mode==='tb'||b.mode==='journal') return { id:b.id, title:b.title, category:b.category, custom:true, mode:b.mode, cq:b.cq, cur:{...(b.cur||{})}, filters:builtinFilters(b), cols:(b.mode==='tb'?tbFields(b.cur):jrFields(b.cur)).map(f=>({key:f.key,label:f.label,show:true})), fetch:b.mode==='tb'?'once':'monthly' };
+  return { id:b.id, title:b.title, category:b.category, custom:true, mode:'ledger', cq:b.cqTrx||b.cq, cqSaldo:b.cqSaldo||null, filters:BUILTIN_FILTERS.map(f=>({...f})), cols:ledgerFields([],!!b.valas), fetch:'monthly' }; }
+function rptHeaders(extra){ const h={'x-zahir-token':st.token,...(extra||{})}; if(st.slug) h['x-zahir-slug']=st.slug; if(st.company?.id) h['x-zahir-company']=st.company.id; return h; }
+async function loadCustomReports(){ try{ const r=await fetch('/reports',{headers:rptHeaders()}); CUSTOM=r.ok?await r.json():[]; }catch{ CUSTOM=[]; } }
+async function buildCatalog(){
+  $('#catCo').textContent=st.company.name;
+  await loadCustomReports();
+  const groups=new Map();
+  for(const it of allReports()){ const k=it.category||'Lainnya'; if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(it); }
+  $('#cards').innerHTML=[...groups].map(([cat,items])=>`<div class="cat"><h3>${esc(cat)}<i>▲</i></h3>${items.map(it=>`<a href="#" class="it" data-id="${it.id}"><span class="st">★</span>${esc(it.title)}${st.online?'':`<span class="ed" data-edit="${it.id}" title="Ubah desain">✎</span>`}</a>`).join('')}</div>`).join('');
+  $('#cards').querySelectorAll('a.it').forEach(a=>a.onclick=e=>{ e.preventDefault(); if(e.target.dataset.edit){ openDesigner(e.target.dataset.edit); return; } openReport(a.dataset.id); });
+}
+async function openReport(id){
+  const r=allReports().find(x=>x.id===id); if(!r) return;
+  st.report=r; st.cq=r.cq; $('#rptCrumb').textContent=r.title; $('#rTitle').textContent=r.title.toUpperCase(); $('#fModalTitle').textContent=r.title;
+  showPage('pgRpt'); st.shown=false; $('#status').textContent=''; $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=''; $('#rFil').innerHTML=''; $('#rBody').innerHTML=''; $('#more').classList.add('hide');
+  $('#btnXlsx').disabled=$('#btnPrint').disabled=$('#btnExpand').disabled=true;
+  ov.show('Menyiapkan laporan','Memuat pilihan filter…'); ov.set(30,'');
+  await buildFilterPanel(r);
+  if(!st.lookupsLoaded){ await loadLookups(); st.lookupsLoaded=true; }
+  ov.hide();
+  resetFilterOut(); openFilter();
+}
+function openFilter(){ $('#fModal').classList.remove('hide'); }
+function resetFilterOut(){ $('#fOut').value='view'; $('#fOut').onchange(); }
+function closeFilter(){ $('#fModal').classList.add('hide'); }
+// batal saat laporan belum pernah tampil (baru dibuka dari daftar) -> kembali ke daftar, bukan halaman kosong
+function cancelFilter(){ closeFilter(); if(!st.shown) showPage('pgCat'); }
+$('#btnFilter').onclick=openFilter; $('#fClose').onclick=cancelFilter; $('#fCancel').onclick=cancelFilter;
+$('#fModal').addEventListener('click',e=>{ if(e.target===$('#fModal')) cancelFilter(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#fModal').classList.contains('hide')) cancelFilter(); });
+const FOUT_HINT={ view:'', xlsx:'Server menarik data dan langsung menulis file Excel — browser tidak menampung data, cocok untuk data sangat besar. File terunduh otomatis saat selesai.' };
+$('#fOut').onchange=()=>{ $('#fOutHint').textContent=FOUT_HINT[$('#fOut').value]||''; $('#fApply').textContent=$('#fOut').value==='xlsx'?'Ekspor Excel':'Ok'; };
+$('#fApply').onclick=async()=>{ closeFilter(); if($('#fOut').value==='xlsx'){ const ok=await $('#btnXlsxDirect').onclick(); if(!st.shown){ if(ok) showPage('pgCat'); else openFilter(); } } else runReport(); };
+// ringkasan filter aktif di kepala laporan: "Semua Departemen" / "Akun: 1100, 1200" dst.
+function filterSummary(){
+  const defs=filtersOf(st.report); const out=[];
+  for(const f of defs){ if(f.type==='date') continue; const v=FV[f.key]; if(!v) continue; const t=v.text?v.text():''; if(t) out.push(`<span>${esc(f.label)}: <b>${esc(t)}</b></span>`); }   // hanya filter yang benar-benar dipilih; 'Semua …' tidak ditampilkan
+  $('#rFil').innerHTML=out.join('');
+}
+
+/* ---------- perancang laporan ---------- */
+let DZ={id:null,fields:[],xrows:[],xcols:[],groupBy:[]};
+function renderGroupBy(){
+  const lab=k=>(DZ.fields.find(f=>f.key===k)?.label)||k; const keys=DZ.fields.map(f=>f.key);
+  $('#gRows').innerHTML=DZ.groupBy.map((k,i)=>`<span class="pill" draggable="true" data-idx="${i}"><i class="grip">⋮⋮</i>${i+1}. ${esc(lab(k))}<b data-g="${i}">×</b></span>`).join('')||'<span class="prev">tidak dikelompokkan</span>';
+  $('#gRows').querySelectorAll('b').forEach(b=>b.onclick=()=>{ DZ.groupBy.splice(+b.dataset.g,1); renderGroupBy(); });
+  let drag=null; $('#gRows').querySelectorAll('.pill').forEach(pl=>{ pl.ondragstart=()=>{ drag=+pl.dataset.idx; pl.classList.add('dragging'); }; pl.ondragend=()=>{ drag=null; renderGroupBy(); }; pl.ondragover=e=>{ if(drag==null) return; e.preventDefault(); pl.classList.add('over'); }; pl.ondragleave=()=>pl.classList.remove('over'); pl.ondrop=e=>{ if(drag==null) return; e.preventDefault(); const to=+pl.dataset.idx; const [k]=DZ.groupBy.splice(drag,1); DZ.groupBy.splice(to,0,k); drag=null; renderGroupBy(); }; });
+  $('#gAdd').innerHTML='<option value="">+ tambah field pengelompok…</option>'+keys.filter(k=>!DZ.groupBy.includes(k)).map(k=>`<option value="${esc(k)}">${esc(lab(k))}</option>`).join('');
+  renderTblMock();
+}
+$('#gAdd').onchange=()=>{ if($('#gAdd').value){ DZ.groupBy.push($('#gAdd').value); renderGroupBy(); } };
+// contoh tabel kecil yang mengikuti pengaturan kelompok/total (mesin yang sama dengan laporan asli)
+function renderTblMock(){
+  const el=$('#tMock'); if(!el) return;
+  const lv=Math.min(2,DZ.groupBy.length); const gb=['dept','proyek'].slice(0,lv); const hide=$('#gHide').checked, sub=$('#gSub').checked, tot=$('#tTot').checked;
+  const all=['dept','proyek','referensi','qty','jumlah']; const labels={dept:'DEPT',proyek:'PROYEK',referensi:'REFERENSI',qty:'QTY',jumlah:'JUMLAH'};
+  const cols=hide?all.filter(c=>!gb.includes(c)):all; const sumCols=['qty','jumlah'];
+  let rows=[]; let n=1; for(const d of ['Brand','Factory']) for(const pj of ['P1','P2']) rows.push({dept:d,proyek:pj,referensi:'INV00'+n,qty:n,jumlah:(n++)*100});
+  if(tot){ const t={__tot:true,referensi:'Total',qty:0,jumlah:0}; for(const r of rows){ t.qty+=r.qty; t.jumlah+=r.jumlah; } rows.push(t); }
+  const out=gb.length?groupRows(rows,gb,cols,sumCols,{subtotal:sub,labels}):rows;
+  const f=v=>v==null?'':Number(v).toLocaleString('en-US');
+  const firstKey=cols.find(x=>!sumCols.includes(x));
+  const html=out.map(r=>{ const k=r.__kind; if(k==='gtitle') return `<tr><td colspan="${cols.length}" class="ttl" style="padding-left:${4+r.__lvl*12}px">${esc(r.__label)}</td></tr>`;
+    if(k==='ghead') return `<tr>${cols.map(c=>`<th class="${sumCols.includes(c)?'r':''}">${labels[c]}</th>`).join('')}</tr>`;
+    if(k==='blank') return `<tr><td colspan="${cols.length}" style="height:6px;border:0"></td></tr>`;
+    if(k==='gtot') return `<tr class="tot">${cols.map(c=>`<td class="${sumCols.includes(c)?'r':''}">${sumCols.includes(c)?f(r[c]):(c===firstKey?esc(r.__label):'')}</td>`).join('')}</tr>`;
+    return `<tr class="${r.__tot?'tot':''}">${cols.map(c=>`<td class="${sumCols.includes(c)?'r':''}">${sumCols.includes(c)?f(r[c]):esc(r[c]??'')}</td>`).join('')}</tr>`; }).join('');
+  el.innerHTML=`<div class="mock"><div class="cap" style="margin:0 0 6px">Contoh hasil dengan pengaturan di atas${gb.length?' (dikelompokkan '+gb.length+' tingkat)':''}:</div><table style="table-layout:auto;font-size:11px">${gb.length?'':`<tr>${cols.map(c=>`<th class="${sumCols.includes(c)?'r':''}">${labels[c]}</th>`).join('')}</tr>`}${html}</table></div>`;
+}
+for(const id of ['gSub','gHide','tTot']) $('#'+id).addEventListener('change',renderTblMock);
+const MOCKS={
+ table:`<div class="mock"><table><tr><th>TANGGAL</th><th>REFERENSI</th><th>KONTAK</th><th class="r">JUMLAH</th></tr>
+  <tr><td>2024-01-05</td><td>INV000123</td><td>PT Maju Jaya</td><td class="r">12,500,000.00</td></tr>
+  <tr><td>2024-01-06</td><td>INV000124</td><td>CV Sentosa</td><td class="r">3,200,000.00</td></tr>
+  <tr><td>2024-01-08</td><td>INV000125</td><td>Toko Berkah</td><td class="r">850,000.00</td></tr></table>
+  <div class="cap">Setiap baris hasil query ditampilkan apa adanya; kolom mengikuti field yang dicentang.</div></div>`,
+ ledger:`<div class="mock"><table><tr><td class="ttl" colspan="5">110000010 · Kas Besar</td></tr>
+  <tr><th>TANGGAL</th><th>REFERENSI</th><th>DESKRIPSI</th><th class="r">DEBIT</th><th class="r">SALDO</th></tr>
+  <tr class="sa"><td>2023-12-31</td><td>Saldo Awal</td><td></td><td class="r">0</td><td class="r">2,000,000.00</td></tr>
+  <tr><td>2024-01-05</td><td>CR000337</td><td>Pembayaran piutang</td><td class="r">500,000.00</td><td class="r">2,500,000.00</td></tr>
+  <tr class="tot"><td></td><td>Saldo Akhir</td><td>2,500,000.00</td><td class="r">500,000.00</td><td></td></tr></table>
+  <div class="cap">Dikelompokkan per akun: saldo awal, transaksi dengan saldo berjalan, total &amp; mutasi.</div></div>`,
+ crosstab:`<div class="mock"><table><tr><th>DEPARTEMEN</th><th class="r">JAN</th><th class="r">FEB</th><th class="r">MAR</th><th class="r">TOTAL</th></tr>
+  <tr><td class="rh">Bogor</td><td class="r">12,500,000</td><td class="r">9,800,000</td><td class="r">14,200,000</td><td class="r">36,500,000</td></tr>
+  <tr><td class="rh">Jakarta</td><td class="r">8,100,000</td><td class="r">11,300,000</td><td class="r">7,900,000</td><td class="r">27,300,000</td></tr>
+  <tr class="tot"><td>Total</td><td class="r">20,600,000</td><td class="r">21,100,000</td><td class="r">22,100,000</td><td class="r">63,800,000</td></tr></table>
+  <div class="cap">Field <b>baris</b> ke bawah, field <b>kolom</b> menyamping sebagai header, nilai dijumlahkan di tiap sel.</div></div>`};
+const MODE_HINT={ table:'Cocok untuk daftar transaksi, rincian, atau hasil query apa pun.',
+ ledger:'Memerlukan field: kode_akun, nama_akun, noklasifikasi, tanggal, debit, kredit (seperti custom query bb_trx) dan custom query saldo awal.',
+ crosstab:'Pilih field baris, field header menyamping, dan nilai angka yang dirangkum. Data ditarik seperti tabel umum lalu dirangkum di browser.',
+ tb:'Custom query akumulasi per akun dengan field kode_akun, nama_akun, noklasifikasi, debit, kredit, debit_a, kredit_a (seperti bb_saldo_awal_valas). Kolom: centang untuk tampil, label bisa diganti; urutan kolom mengikuti header.',
+ journal:'Custom query baris jurnal dengan field trx_id, jurnal_id, tanggal, tipe, nomor, kontak, deskripsi, kode_akun, nama_akun, dept_nama, dept_kode, proyek_kode, debit, kredit, debit_a, kredit_a (seperti jurnal_all_trx). Kolom bisa disembunyikan, diganti label, dan diurutkan.' };
+// mode dengan kolom tetap (trial balance / jurnal): daftar field dari layout, label & centang dari desain sebelumnya
+const curOf=()=>({ curA:$('#dzCurA').value.trim()||'IDR', curB:$('#dzCurB').value.trim()||'USD', decA:Math.max(0,Math.min(4,parseInt($('#dzDecA').value,10)||0)), decB:Math.max(0,Math.min(4,parseInt($('#dzDecB').value,10)||0)),
+  ...($('#dzMode').value==='tb'?{ secB:$('#dzSecB').value.trim()||undefined, secM:$('#dzSecM').value.trim()||undefined, secE:$('#dzSecE').value.trim()||undefined }:{}) });
+function fixedFields(m){ const all=(m==='tb'?tbFields:jrFields)(curOf()); const old=new Map(DZ.fields.map((c,i)=>[c.key,{...c,i}]));
+  const out=all.map((f,j)=>{ const o=old.get(f.key); return { key:f.key, label:o?.label||f.label, show:o?o.show!==false:true, sample:f.desc, _o:o?o.i:1000+j }; });
+  if(m==='journal') out.sort((a,b)=>a._o-b._o); return out.map(({_o,...x})=>x); }
+$('#btnNewRpt').onclick=()=>openDesigner(null);
+$('#crumbBack2').onclick=e=>{ e.preventDefault(); showPage('pgCat'); };
+$('#dzCancel').onclick=()=>showPage('pgCat');
+const FETCH_HINT={
+  once:'Query dijalankan satu kali untuk seluruh periode. Pilih ini untuk laporan ringkasan yang nilainya berupa saldo (neraca, saldo per akun) atau yang datanya tidak terlalu besar.',
+  monthly:'Periode dipecah per bulan (tahun kosong dilewati, tahun kecil sekali tarik), lalu semua baris digabung apa adanya. Pilih ini untuk daftar transaksi rinci yang banyak, dan untuk crosstab — crosstab menjumlahkan sendiri per sel.',
+  monthly_sum:'Periode dipecah per bulan; baris yang kolom kuncinya sama (kode, nama, departemen, dsb.) digabung dan kolom angkanya dijumlahkan. Pilih ini untuk rekap/laba rugi yang datanya besar. Hanya untuk nilai yang boleh dijumlahkan (mutasi, omzet, qty) — bukan saldo atau persentase. Peran tiap kolom (kunci / jumlahkan) bisa diatur di tabel Kolom.' };
+$('#dzFetch').onchange=()=>{ $('#dzCols').classList.toggle('showsum',$('#dzFetch').value==='monthly_sum'); $('#dzFetchHint').textContent=FETCH_HINT[$('#dzFetch').value]||''; };
+const APP_VER='__APP_VER__';
+function toast(msg,kind='ok'){ let t=$('#toast'); if(!t){ t=document.createElement('div'); t.id='toast'; document.body.appendChild(t); } t.className='show '+kind; t.innerHTML=`<span>${kind==='ok'?'✓':'!'}</span>${esc(msg)}`; clearTimeout(t._t); t._t=setTimeout(()=>{ t.className=''; },2800); }
+async function jfetch(url,opt){ const r=await fetch(url,opt); const t=await r.text(); let j; try{ j=JSON.parse(t); }catch{ throw new Error(/^\s*</.test(t)?`Server masih memakai versi lama (rute ${url.split('?')[0]} belum ada). Hentikan lalu jalankan ulang "node server.js" dari folder versi baru.`:t.slice(0,200)); } if(!r.ok) throw new Error(j.error||('HTTP '+r.status)); return j; }
+// cek versi server vs tampilan: beda = server belum di-restart dengan file baru
+(async()=>{ try{ const j=await jfetch('/version'); if(j.online) setOnline(j); if(j.build||j.version) $('#buildInfo').textContent=(j.version?'v'+j.version+' · ':'')+'build '+(j.build||'-'); if(j.pkg){ $('#btnQuit').classList.remove('hide'); $('#loginQuit').classList.remove('hide'); }
+    if(j.pkg||j.desktop){ try{ const sx=await jfetch('/settings'); $('#srvUrl').textContent=sx.url; $('#srvDot').classList.remove('off'); $('#srvLoc').classList.remove('hide'); $('#srvEdit').classList.toggle('hide',!sx.editable);
+      $('#srvEdit').onclick=async()=>{ const v=prompt('Port server lokal (1024–65535). Aplikasi akan jalan ulang di port baru.',String(sx.port)); if(v==null) return; const port=Number(v); if(!Number.isInteger(port)||port<1024||port>65535){ $('#srvNote').textContent='Port harus angka 1024–65535.'; return; }
+        try{ const r=await jfetch('/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({port})}); if(!r.restart){ $('#srvNote').textContent='Port tidak berubah.'; return; }
+          $('#srvNote').textContent='Pindah ke '+r.url+' … aplikasi jalan ulang.'; $('#srvDot').classList.add('off');
+          if(!j.desktop){ const t0=Date.now(); const tick=async()=>{ try{ const x=await fetch(r.url+'/version'); if(x.ok){ location.href=r.url+'/'; return; } }catch{} if(Date.now()-t0<20000) setTimeout(tick,700); else $('#srvNote').textContent='Server belum menjawab di '+r.url+' — buka lewat ikon Zahir Insight.'; }; setTimeout(tick,1200); } }
+        catch(err){ $('#srvNote').textContent='Gagal: '+err.message; } }; }catch{} } if(j.version&&j.version.replace(/\.0$/,'')!==APP_VER){ const b=document.createElement('div'); b.style.cssText='background:#fff3cd;color:#7a5200;padding:8px 16px;font-size:13px;border-bottom:1px solid #f0d78c'; b.textContent=`Server masih versi ${j.version} sedangkan tampilan versi ${APP_VER}. Hentikan server lalu jalankan ulang "node server.js" dari folder versi baru.`; document.body.prepend(b); } }catch(e){ const b=document.createElement('div'); b.style.cssText='background:#fff3cd;color:#7a5200;padding:8px 16px;font-size:13px;border-bottom:1px solid #f0d78c'; b.textContent='Server masih versi lama — hentikan server lalu jalankan ulang "node server.js" dari folder versi baru.'; document.body.prepend(b); } })();
+// ---- rekomendasi cara pengambilan data: baca definisi custom query (SQL + peta field) lalu analisis strukturnya ----
+const FETCH_LABEL={once:'Sekaligus',monthly:'Per bulan — digabung',monthly_sum:'Per bulan — dijumlahkan'};
+async function aiRecommend(manualSql){
+  const box=$('#dzAiBox'); box.classList.remove('hide');
+  const cq=cqName($('#dzCq').value); if(!cq&&!manualSql){ box.innerHTML='<div class="aih"><b>Isi nama custom query dulu</b></div><div class="nt">Rekomendasi dibaca dari struktur SQL custom query itu.</div>'; return; }
+  box.innerHTML='<div class="aih"><span class="spin"></span><b>Membaca struktur query…</b></div>';
+  let def;
+  try{
+    if(manualSql){ def=parseManualDef(manualSql,cq); }
+    else def=await jfetch('/cq/def/'+encodeURIComponent(cq),{headers:headersData()});
+  }catch(err){ manualDefBox(box,err.message,''); return; }
+  // peran field dari tabel Kolom ikut dipertimbangkan oleh server (tidak wajib)
+  const mode=$('#dzMode').value;
+  let res;
+  try{ res=await jfetch('/ai/recommend',{method:'POST',headers:{'Content-Type':'application/json','x-zahir-token':st.token},body:JSON.stringify({name:cq,query:def.query,field:def.field,reason:def.reason,mode})}); }
+  catch(err){ res=analyzeQuery(def,{mode}); res.llm={error:err.message}; }
+  const rec=res.llm?.rec&&FETCH_LABEL[res.llm.rec]?res.llm.rec:res.rec;
+  const srcTxt={zahir:'Definisi dibaca dari API Zahir Online',manual:'Dianalisis dari tempelan Anda (tidak disimpan)'}[def.source]||'';
+  box.innerHTML=`<div class="aih"><span>✦</span><b>Rekomendasi: ${esc(FETCH_LABEL[rec])}</b><span class="conf ${res.confidence}">keyakinan ${esc(res.confidence)}</span><button class="sm" type="button" id="dzAiApply" style="margin-left:auto">Terapkan</button></div>
+    <ul>${res.reasons.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    ${res.notes.length?`<ul class="nt">${res.notes.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+    ${res.llm&&!res.llm.error?`<div class="llm"><b>Penjelasan AI (${esc(res.llm.model||'')})${res.llm.rec&&res.llm.rec!==res.rec?' — berbeda dengan analisis aturan ('+esc(FETCH_LABEL[res.llm.rec]||res.llm.rec)+')':''}:</b> ${esc(res.llm.explanation||'')}${res.llm.caution?` <span class="nt">${esc(res.llm.caution)}</span>`:''}</div>`:''}
+    <div class="src">${esc(srcTxt)}${res.llm&&!res.llm.error?'':' · analisis aturan lokal dari struktur SQL'+(res.llm?.error&&!/HTTP 4/.test(res.llm.error)?'':'')}${def.source!=='manual'?` · <a href="#" id="dzAiManual">tempel SQL lain</a>`:''}</div>`;
+  $('#dzAiApply').onclick=()=>{ $('#dzFetch').value=rec; $('#dzFetch').onchange(); $('#dzAiApply').textContent='✓ Diterapkan'; $('#dzAiApply').disabled=true; };
+  const m=$('#dzAiManual'); if(m) m.onclick=e=>{ e.preventDefault(); manualDefBox(box,'',def.query||''); };
+}
+// isi tempelan: JSON definisi custom query (dari Zahir: {name, field, query, ...}) atau SQL mentah
+function parseManualDef(txt,cq){
+  const t=txt.trim();
+  if(t.startsWith('{')){ try{ const j=JSON.parse(t); if(typeof j.query==='string') return {name:j.name||cq,query:j.query,field:j.field||{},reason:j.reason||'',source:'manual'}; }catch{} }
+  const def={name:cq,query:t,field:{},reason:'',source:'manual'}; if(/\{andWhere\}|\bdate\b/i.test(t)) def.field.date='(ditebak dari SQL)'; return def;
+}
+function manualDefBox(box,errMsg,prefill){
+  box.innerHTML=`${errMsg?`<div class="aih"><b>Definisi query tidak terbaca</b></div><div class="nt">${esc(errMsg)}</div>`:''}
+    <div class="nt" style="margin-top:6px">Tempel <b>JSON definisi</b> custom query (hasil GET custom query di Zahir Online — lengkap dengan <span class="mono">field</span> &amp; <span class="mono">query</span>, analisis paling akurat) atau <b>SQL</b>-nya saja, lalu klik Analisis:</div>
+    <textarea id="dzAiSql" placeholder='{ "name": "...", "field": {...}, "query": "WITH ... SELECT ..." }  atau  WITH ... SELECT ...'>${esc(prefill)}</textarea>
+    <div style="margin-top:6px"><button class="sm" type="button" id="dzAiGo">Analisis</button> <span class="prev" style="display:inline">Tempelan hanya dianalisis, tidak disimpan — custom query tetap dikelola di Zahir Online.</span></div>`;
+  $('#dzAiGo').onclick=()=>{ const v=$('#dzAiSql').value.trim(); if(v) aiRecommend(v); };
+}
+$('#dzAi').onclick=()=>aiRecommend();
+$('#dzCatSel').onchange=()=>{ const n=$('#dzCatSel').value==='__new'; $('#dzCat').classList.toggle('hide',!n); if(n) $('#dzCat').focus(); };
+$('#dzLedgerSrc').onchange=()=>{ $('#dzSaldoRow').classList.toggle('hide',$('#dzLedgerSrc').value!=='raw'); };
+$('#dzMode').onchange=()=>{ const m=$('#dzMode').value; if(m==='crosstab') setTimeout(renderXtMock,0); if(m==='table') setTimeout(renderTblMock,0); $('#dzTotWrap').classList.toggle('hide',m!=='table'); if(m==='ledger'){ DZ.fields=ledgerFields(DZ.fields); renderDzCols(); $('#dzLedgerSrc').onchange(); } $('#dzSaldoWrap').classList.toggle('hide',m!=='ledger'); $('#dzXWrap').classList.toggle('hide',m!=='crosstab'); $('#dzFetchWrap').classList.toggle('hide',m==='ledger'); $('#dzMock').innerHTML=MOCKS[m]||''; $('#dzModeHint').textContent=MODE_HINT[m]||''; if(m==='crosstab') renderXt();
+  const fx=m==='tb'||m==='journal'; $('#dzCurWrap').classList.toggle('hide',!fx); $('#dzSecRow').classList.toggle('hide',m!=='tb'); if(fx){ $('#dzFetchWrap').classList.add('hide'); DZ.fields=fixedFields(m); renderDzCols(); }
+  $('#dzCurHint').textContent=m==='tb'?'Kolom IDR = nilai dalam mata uang akun, USD = mata uang dasar perusahaan. Baris TOTAL hanya untuk mata uang dasar.':m==='journal'?'Baris Balance menjumlahkan debit/kredit tiap transaksi untuk kedua mata uang.':''; };
+['#dzCurA','#dzCurB','#dzSecB','#dzSecM','#dzSecE'].forEach(id=>$(id).addEventListener('input',()=>{ const m=$('#dzMode').value; if(m==='tb'||m==='journal'){ const keep=DZ.fields.map(f=>({...f})); DZ.fields=fixedFields(m); renderDzCols(); } }));
+function renderXt(){
+  const keys=DZ.fields.map(f=>f.key); const lab=k=>(DZ.fields.find(f=>f.key===k)?.label)||k;
+  const pills=(arr,id)=>arr.map((k,i)=>`<span class="pill" draggable="true" data-list="${id}" data-idx="${i}" title="Seret untuk mengubah urutan atau memindahkan ke kotak lain"><i class="grip">⋮⋮</i>${i+1}. ${esc(lab(k))}<b data-${id}="${i}">×</b></span>`).join('')||'<span class="prev">belum ada — seret field ke sini atau pilih di bawah</span>';
+  $('#xRows').innerHTML=pills(DZ.xrows,'r'); $('#xCols').innerHTML=pills(DZ.xcols,'c');
+  // seret & lepas: di dalam kotak = ubah urutan, antar kotak = pindah baris ↔ kolom
+  const lists={r:DZ.xrows,c:DZ.xcols}; let drag=null;
+  for(const box of [$('#xRows'),$('#xCols')]){
+    box.querySelectorAll('.pill').forEach(pl=>{
+      pl.ondragstart=e=>{ drag={list:pl.dataset.list,idx:+pl.dataset.idx}; pl.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; };
+      pl.ondragend=()=>{ drag=null; renderXt(); };
+      pl.ondragover=e=>{ if(!drag) return; e.preventDefault(); pl.classList.add('over'); };
+      pl.ondragleave=()=>pl.classList.remove('over');
+      pl.ondrop=e=>{ if(!drag) return; e.preventDefault(); e.stopPropagation(); const to=pl.dataset.list, ti=+pl.dataset.idx; const [k]=lists[drag.list].splice(drag.idx,1); lists[to].splice(to===drag.list&&ti>drag.idx?ti:ti,0,k); drag=null; renderXt(); };
+    });
+    box.ondragover=e=>{ if(!drag) return; e.preventDefault(); box.classList.add('over'); };
+    box.ondragleave=()=>box.classList.remove('over');
+    box.ondrop=e=>{ if(!drag) return; e.preventDefault(); const to=box.id==='xRows'?'r':'c'; const [k]=lists[drag.list].splice(drag.idx,1); lists[to].push(k); drag=null; renderXt(); };
+  }
+  $('#xRows').querySelectorAll('b').forEach(b=>b.onclick=()=>{ DZ.xrows.splice(+b.dataset.r,1); renderXt(); });
+  $('#xCols').querySelectorAll('b').forEach(b=>b.onclick=()=>{ DZ.xcols.splice(+b.dataset.c,1); renderXt(); });
+  const opts=(ex)=>'<option value="">+ tambah field…</option>'+keys.filter(k=>!ex.includes(k)).map(k=>`<option value="${esc(k)}">${esc(lab(k))}</option>`).join('');
+  $('#xRowAdd').innerHTML=opts([...DZ.xrows,...DZ.xcols]); $('#xColAdd').innerHTML=opts([...DZ.xrows,...DZ.xcols]);
+  const cur=$('#xVal').value; const numKeys=DZ.fields.filter(f=>f.sample==null||f.sample===''||!isNaN(Number(String(f.sample).replace(/,/g,'')))).map(f=>f.key);
+  $('#xVal').innerHTML=(numKeys.length?numKeys:keys).map(k=>`<option value="${esc(k)}">${esc(lab(k))}</option>`).join(''); if(cur) $('#xVal').value=cur;
+}
+// contoh crosstab kecil yang mengikuti pilihan Total (memakai mesin yang sama dengan laporan asli)
+function renderXtMock(){
+  const el=$('#xMock'); if(!el) return;
+  const cfg={rows:['akun'],cols:['departemen','proyek'],value:'nilai',agg:'sum',totRow:$('#xTotRow').checked,totCol:$('#xTotCol').checked,totGroup:$('#xTotGroup').checked};
+  const rows=[]; let n=1; for(const a of ['Kas','Bank']) for(const d of ['Brand','Factory']) for(const pj of ['P1','P2']) rows.push({akun:a,departemen:d,proyek:pj,nilai:(n++)*10});
+  const res=pivot(rows,cfg); const L=crosstabLayout(res,cfg); L.labels.akun='AKUN';
+  const numCols=L.cols.filter(c=>L.numeric.has(c)); const f=v=>v==null?'-':Number(v).toLocaleString('en-US');
+  const body=res.map(r=>`<tr class="${r.__kind==='tot'?'tot':''}"><td class="rh">${esc(r.akun)}</td>${numCols.map(c=>`<td class="r${c.startsWith('c:\u0003')?' sub':''}">${f(r[c])}</td>`).join('')}</tr>`).join('');
+  el.innerHTML=`<div class="mock"><div class="cap" style="margin:0 0 6px">Contoh hasil dengan pengaturan Total di atas:</div><table class="xm" style="table-layout:auto;font-size:11px"><thead>${crosstabHead(res,cfg,L.labels,L.rowCols)}</thead><tbody>${body}</tbody></table></div>`;
+}
+for(const id of ['xTotRow','xTotCol','xTotGroup']) $('#'+id).addEventListener('change',renderXtMock);
+$('#xRowAdd').onchange=()=>{ if($('#xRowAdd').value){ DZ.xrows.push($('#xRowAdd').value); renderXt(); } };
+$('#xColAdd').onchange=()=>{ if($('#xColAdd').value){ DZ.xcols.push($('#xColAdd').value); renderXt(); } };
+const FTYPES={date:'Rentang tanggal',select:'Dropdown (satu)',multi:'Pilih banyak',range:'Dari – hingga (kode)',text:'Teks'};
+const FSRC={accounts:'Akun',contacts:'Kontak',departments:'Departemen',projects:'Proyek',cost_codes:'Kode biaya',warehouses:'Gudang',endpoint:'Endpoint lain'};
+function renderDzFil(){
+  const tb=$('#dzFil tbody');
+  tb.innerHTML=DZ.filters.map((f,i)=>`<tr>
+    <td><input type="text" data-f="label" data-i="${i}" value="${esc(f.label||'')}"></td>
+    <td>${f.type==='date'?'<span class="mono" style="color:#6b7a90">date.$gte / date.$lte</span>':f.apply==='local'?`<input type="text" class="mono" data-f="col" data-i="${i}" list="dzColList" value="${esc(f.col||f.key||'')}" placeholder="nama kolom hasil, mis. customer" title="Kolom hasil query yang dicocokkan dengan pilihan (id / kode / nama)">`:`<input type="text" class="mono" data-f="key" data-i="${i}" value="${esc(f.key||'')}" placeholder="mis. department_id">`}</td>
+    <td>${f.type==='date'?'Rentang tanggal':`<select data-f="type" data-i="${i}">${['select','multi','range','text'].map(t=>`<option value="${t}" ${f.type===t?'selected':''}>${FTYPES[t]}</option>`).join('')}</select>`}</td>
+    <td>${f.type==='date'||f.type==='text'?'—':`<select data-f="source" data-i="${i}">${Object.entries(FSRC).map(([k,v])=>`<option value="${k}" ${f.source===k?'selected':''}>${v}</option>`).join('')}</select>${f.source==='endpoint'?`<input type="text" class="mono" data-f="endpoint" data-i="${i}" value="${esc(f.endpoint||'')}" placeholder="/api/v2/..." style="margin-top:4px">`:''}`}</td>
+    <td>${f.type==='date'?'<span style="color:#6b7a90">parameter query</span>':`<select data-f="apply" data-i="${i}" title="Parameter: dikirim ke Zahir, nama harus ada di field map query (cepat, data disaring di server). Di aplikasi: semua data ditarik lalu disaring di sini dengan mencocokkan kolom hasil — untuk query yang tidak punya parameternya."><option value="param" ${f.apply!=='local'?'selected':''}>Parameter</option><option value="local" ${f.apply==='local'?'selected':''}>Di aplikasi</option></select>`}</td>
+    <td><span class="mv" data-up="${i}">▲</span><span class="mv" data-dn="${i}">▼</span><span class="mv" data-del="${i}" style="color:var(--bad)">✕</span></td></tr>`).join('')
+    ||'<tr><td colspan="6" class="prev">Belum ada filter — laporan akan menarik seluruh data.</td></tr>';
+  $('#dzColList').innerHTML=DZ.fields.map(f=>`<option value="${esc(f.key)}">`).join('');
+  tb.querySelectorAll('[data-f]').forEach(el=>{
+    const i=+el.dataset.i, k=el.dataset.f;
+    if(el.tagName==='SELECT') el.onchange=()=>{ const f=DZ.filters[i]; f[k]=el.value; if(k==='type'){ if(el.value==='text') delete f.source; else if(!f.source) f.source='accounts'; } if(k==='apply'&&el.value==='local'&&!f.col) f.col=guessCol(f); renderDzFil(); };
+    else el.oninput=()=>{ DZ.filters[i][k]=el.value; };
+  });
+  tb.querySelectorAll('[data-up]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.up; if(i>0){ [DZ.filters[i-1],DZ.filters[i]]=[DZ.filters[i],DZ.filters[i-1]]; renderDzFil(); } });
+  tb.querySelectorAll('[data-dn]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.dn; if(i<DZ.filters.length-1){ [DZ.filters[i+1],DZ.filters[i]]=[DZ.filters[i],DZ.filters[i+1]]; renderDzFil(); } });
+  tb.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{ DZ.filters.splice(+x.dataset.del,1); renderDzFil(); });
+  if(DZ.filters.length>1) dragRows(tb,DZ.filters,renderDzFil);
+}
+// tebak kolom hasil untuk filter 'di aplikasi' dari nama field yang ada (contact_id -> customer/kontak/contact, dst.)
+const COL_GUESS={contacts:['customer','kontak','contact','pelanggan','supplier','vendor','nama_kontak','contact_name'],accounts:['kode_akun','account_code','akun','account'],departments:['dept','departemen','department','department_name'],projects:['proyek','project','project_name'],cost_codes:['cost_code','kode_biaya'],warehouses:['gudang','warehouse']};
+function guessCol(f){ const keys=DZ.fields.map(x=>x.key); const base=(f.key||'').replace(/_id$/,''); const cand=[f.key,base,...(COL_GUESS[f.source]||[])]; for(const c of cand) if(c&&keys.includes(c)) return c; for(const c of cand) { const k=keys.find(x=>c&&x.includes(c)); if(k) return k; } return base||f.key||''; }
+// periksa: parameter filter ada di field map custom query? kalau tidak, tawarkan ubah ke 'di aplikasi'
+$('#dzFilCheck').onclick=async()=>{
+  const cq=cqName($('#dzCq').value); const out=$('#dzFilChk'); if(!cq){ out.innerHTML='<span style="color:var(--bad)">Isi nama custom query dulu.</span>'; return; }
+  out.innerHTML='<span class="spin"></span> Membaca field map query…';
+  let def; try{ def=await jfetch('/cq/def/'+encodeURIComponent(cq),{headers:headersData()}); }catch(err){ out.innerHTML=`<span style="color:var(--bad)">Definisi query tidak terbaca: ${esc(err.message)}</span><div class="prev">Pastikan custom query dengan nama itu sudah dibuat di Zahir Online untuk database ini.</div>`; return; }
+  const fmap=def.field||{}; const keys=Object.keys(fmap); const bad=[]; const dubious=[]; const ok=[];
+  // {andWhere} di dalam subquery/CTE: hanya kolom bertabel (mis. G1.CONTACT_ID) yang bisa difilter; alias keluaran (customer, amount) tidak ada di situ
+  const sqlNoCmt=String(def.query||'').replace(/--[^\n]*/g,' '); let depthAW=-1,d=0; for(let i=0;i<sqlNoCmt.length;i++){ const ch=sqlNoCmt[i]; if(ch==='(') d++; else if(ch===')') d=Math.max(0,d-1); else if(sqlNoCmt.startsWith('{andWhere}',i)){ depthAW=d; break; } }
+  DZ.filters.forEach((f,i)=>{ if(f.apply==='local') return; const k=f.type==='date'?'date':(f.key||'').replace(/\.\$(gte|lte)$/,''); if(!keys.includes(k)) bad.push({i,k,f}); else if(depthAW>0&&!/\./.test(String(fmap[k]))) dubious.push({i,k,f,v:fmap[k]}); else ok.push(k); });
+  if(!bad.length&&!dubious.length){ out.innerHTML=`<span style="color:var(--ok,#1a7f37)">✓ Semua parameter filter ada di field map (${esc(ok.join(', '))}).</span>`; return; }
+  // kartu per filter bermasalah: bahasa sehari-hari + tombol aksi langsung
+  const hasCol=f=>DZ.fields.some(x=>x.key===guessCol(f));
+  const card=(b,kind)=>{ const col=guessCol(b.f); const canLocal=hasCol(b.f);
+    const why=kind==='bad'
+      ?`Query <span class="mono">${esc(cq)}</span> tidak punya parameter <span class="mono">${esc(b.k)}</span>. Kalau dibiarkan, pilihan ${esc(b.f.label||'')} di popup filter <b>diabaikan</b> — data tetap tampil semua.`
+      :`Parameter <span class="mono">${esc(b.k)}</span> hanya nama kolom hasil, bukan kolom tabel, sehingga Zahir <b>error</b> ("column does not exist") saat filter ini dipakai.`;
+    const act=(canLocal?`<button class="sm" type="button" data-loc="${b.i}" title="Semua data periode ditarik, lalu aplikasi menyaring baris yang kolom ${esc(col)}-nya sama dengan pilihan Anda">Saring di aplikasi (kolom ${esc(col)})</button>`:'')
+      +`<button class="sm ghost" type="button" data-del="${b.i}">Hapus filter ini</button>`;
+    const tip=canLocal
+      ?`<div class="prev">Pilih <b>Saring di aplikasi</b> bila tidak ingin mengubah query (hasil benar, sedikit lebih berat untuk data sangat besar). Kalau ingin disaring di server, tambahkan parameter bertabel ke <span class="mono">field</span> query di Zahir Online${kind==='dubious'?` — mis. <span class="mono">"contact_id": "G1.CONTACT_ID"</span> lalu ganti parameter filter ini menjadi <span class="mono">contact_id</span>`:''}.</div>`
+      :`<div class="prev">Hasil query juga tidak punya kolom yang bisa dicocokkan, jadi filter ini tidak bisa dipakai untuk query ini — hapus saja.</div>`;
+    return `<div class="fchk ${kind}"><div><b>${esc(b.f.label||b.k)}</b> — ${why}</div><div class="fact">${act}</div>${tip}</div>`; };
+  out.innerHTML=[...bad.map(b=>card(b,'bad')),...dubious.map(b=>card(b,'dubious'))].join('')+(ok.length?`<div class="prev">✓ Filter lain sudah benar: ${esc(ok.join(', '))}</div>`:'');
+  out.querySelectorAll('[data-loc]').forEach(a=>a.onclick=()=>{ const f=DZ.filters[+a.dataset.loc]; f.apply='local'; f.col=guessCol(f); renderDzFil(); a.closest('.fchk').innerHTML=`✓ <b>${esc(f.label||f.key)}</b> sekarang disaring di aplikasi lewat kolom <span class="mono">${esc(f.col)}</span>. Jangan lupa <b>Simpan</b>.`; });
+  out.querySelectorAll('[data-del]').forEach(a=>a.onclick=()=>{ const i=+a.dataset.del; const f=DZ.filters[i]; DZ.filters.splice(i,1); renderDzFil(); a.closest('.fchk').innerHTML=`✓ Filter <b>${esc(f.label||f.key)}</b> dihapus. Jangan lupa <b>Simpan</b>.`; $('#dzFilChk').querySelectorAll('[data-loc],[data-del]').forEach(x=>{ const j=+x.dataset.loc||+x.dataset.del; if(j>i){ if(x.dataset.loc) x.dataset.loc=j-1; else x.dataset.del=j-1; } }); });
+};
+$('#dzFilAdd').onchange=()=>{ const v=$('#dzFilAdd').value; $('#dzFilAdd').value=''; if(!v) return; if(v==='date'&&DZ.filters.some(f=>f.type==='date')) return; DZ.filters.push({...PRESET_FILTERS[v]}); renderDzFil(); };
+
+function openDesigner(id){
+  let r=id?CUSTOM.find(x=>x.id===id):null; if(id&&!r){ const b=builtinReports().find(x=>x.id===id); if(b) r=builtinAsDesign(b); }
+  DZ={id:r?.id||null,fields:(r?.cols||[]).map(c=>({...c})),xrows:[],xcols:[],filters:r?(Array.isArray(r.filters)?r.filters.map(f=>({...f})):legacyFilters(r.filters)):[{...PRESET_FILTERS.date}]};
+  if(r?.mode==='ledger'||r?.mode==='legacy') DZ.fields=ledgerFields(DZ.fields);
+  $('#dzTitle').textContent=r?'Ubah: '+r.title:'Laporan Baru'; $('#dzName').value=r?.title||''; $('#dzCat').value=r?.category||''; $('#dzCq').value=r?.cq||''; $('#dzSaldo').value=r?.cqSaldo||'';
+  const cu=r?.cur||{}; $('#dzCurA').value=cu.curA||'IDR'; $('#dzCurB').value=cu.curB||'USD'; $('#dzDecA').value=cu.decA??0; $('#dzDecB').value=cu.decB??2; $('#dzSecB').value=cu.secB||''; $('#dzSecM').value=cu.secM||''; $('#dzSecE').value=cu.secE||'';
+  $('#dzMode').value=['ledger','legacy','crosstab','tb','journal'].includes(r?.mode)?(r.mode==='legacy'?'ledger':r.mode):'table'; $('#dzLedgerSrc').value=(r?.mode==='ledger'&&r?.cqSaldo)?'raw':'legacy';
+  DZ.xrows=[...(r?.crosstab?.rows||[])]; DZ.xcols=[...(r?.crosstab?.cols||[])]; $('#xLabKode').value=r?.crosstab?.labKode||'KODE'; $('#xLabAkun').value=r?.crosstab?.labAkun||'AKUN';
+  DZ.groupBy=[...(r?.groupBy||[])]; $('#gSub').checked=r?.groupSub!==false; $('#gHide').checked=r?.groupHide!==false; $('#tLabKode').value=r?.labKode||'KODE'; $('#tLabAkun').value=r?.labAkun||'AKUN'; renderGroupBy();
+  $('#dzMode').onchange(); if(r?.crosstab){ $('#xVal').value=r.crosstab.value||''; $('#xAgg').value=r.crosstab.agg||'sum'; $('#xTotRow').checked=r.crosstab.totRow!==false; $('#xTotCol').checked=r.crosstab.totCol!==false; $('#xTotGroup').checked=r.crosstab.totGroup!==false; } else { $('#xTotRow').checked=$('#xTotCol').checked=$('#xTotGroup').checked=true; } renderXtMock();
+  renderDzFil(); $('#dzT1').value=firstDayOfMonth(); $('#dzT2').value=today(); $('#dzFetch').value=r?.fetch||'once'; $('#dzFetch').onchange(); $('#dzAiBox').classList.add('hide'); $('#dzAiBox').innerHTML=''; $('#tTot').checked=!!r?.totRow;
+  const cats=[...new Set(allReports().map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id')); const cur=r?.category||'';
+  $('#dzCatSel').innerHTML=cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="__new">+ Kategori baru…</option>';
+  if((cur&&cats.includes(cur))||(!cur&&cats.length)){ $('#dzCatSel').value=cur||cats[0]; $('#dzCat').value=''; $('#dzCat').classList.add('hide'); }
+  else { $('#dzCatSel').value='__new'; $('#dzCat').value=cur; $('#dzCat').classList.remove('hide'); }
+  $('#dzErr').textContent=''; $('#dzStatus').textContent=''; $('#dzDelete').classList.toggle('hide',!r); $('#dzDelete').textContent=(r&&builtinReports().some(b=>b.id===r.id))?'Kembalikan ke bawaan':'Hapus laporan';
+  renderDzCols(); showPage('pgDesign');
+}
+// seret-lepas baris tabel desainer: arr = array yang diurutkan, redraw = fungsi gambar ulang
+function dragRows(tbody,arr,redraw,idxs){
+  let from=null; const rows=[...tbody.querySelectorAll('tr')]; if(rows.length<2) return;
+  const ix=i=>idxs?idxs[i]:i;   // baris tabel ke-i → indeks di arr (bila ada baris yang disembunyikan)
+  rows.forEach((tr,i)=>{ tr.draggable=true; tr.classList.add('drag'); tr.onmousedown=e=>{ tr.draggable=!e.target.closest('input,select,textarea'); };
+    tr.ondragstart=e=>{ from=i; tr.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setData('text/plain',String(i)); }catch{} };
+    tr.ondragend=()=>{ from=null; rows.forEach(r=>r.classList.remove('dragging','over')); };
+    tr.ondragover=e=>{ if(from==null) return; e.preventDefault(); rows.forEach(r=>r.classList.remove('over')); tr.classList.add('over'); };
+    tr.ondrop=e=>{ if(from==null||from===i) return; e.preventDefault(); const a=ix(from), b=ix(i); const [x]=arr.splice(a,1); arr.splice(b,0,x); from=null; redraw(); }; });
+}
+function renderDzCols(){
+  const t=$('#dzCols'); if(!DZ.fields.length){ t.classList.add('hide'); $('#dzColsHint').classList.remove('hide'); return; }
+  t.classList.remove('hide'); $('#dzColsHint').classList.add('hide');
+  DZ.collapsed=DZ.collapsed||new Set();
+  const vis=DZ.fields.map((c,i)=>i).filter(i=>!(DZ.fields[i].part&&DZ.collapsed.has(DZ.fields[i].part)));
+  const subInfo=k=>{ const subs=DZ.fields.filter(f=>f.part===k); return `${subs.filter(f=>f.show!==false).length} dari ${subs.length} bagian dipakai`; };
+  t.querySelector('tbody').innerHTML=vis.map(i=>{ const c=DZ.fields[i]; const sub=c.part?DZ.fields.filter(f=>f.part===c.part):null;
+    return `<tr class="${c.part?'sub':''}"><td><input type="checkbox" data-i="${i}" ${c.show!==false?'checked':''} title="Tampilkan di laporan"></td><td><span class="key${c.jasper?' hasChip':''}" title="${esc(c.key)}">${c.jasper?`<span class="tg" data-tg="${esc(c.key)}" title="${DZ.collapsed.has(c.key)?'Buka':'Lipat'} bagian-bagian field ini">${DZ.collapsed.has(c.key)?'▸':'▾'}</span>`:''}${esc(c.part?c.key.slice(c.part.length+1):c.key)}${c.jasper?`<span class="chip" title="Field berformat Jasper — bagian-bagiannya bisa dipilih sebagai kolom (${subInfo(c.key)})">format baris · ${DZ.fields.filter(f=>f.part===c.key&&f.show!==false).length}/${DZ.fields.filter(f=>f.part===c.key).length}</span>`:''}</span></td><td><input type="text" data-l="${i}" value="${esc(c.label||'')}" placeholder="Label kolom"></td><td><span class="smp" title="${esc(String(c.sample??''))}">${esc(String(c.sample??''))}</span></td><td class="sumcol"><select data-s="${i}" title="otomatis / kunci (tidak dijumlahkan) / jumlahkan"><option value="">otomatis</option><option value="key" ${c.sum===false?'selected':''}>kunci</option><option value="sum" ${c.sum===true?'selected':''}>jumlahkan</option></select></td><td><span class="mv" data-up="${i}">▲</span><span class="mv" data-dn="${i}">▼</span><span class="mv" data-del="${i}" title="Hapus kolom dari laporan" style="color:var(--bad)">✕</span></td></tr>`; }).join('');
+  t.querySelectorAll('[data-tg]').forEach(x=>x.onclick=()=>{ const k=x.dataset.tg; if(DZ.collapsed.has(k)) DZ.collapsed.delete(k); else DZ.collapsed.add(k); renderDzCols(); });
+  t.querySelectorAll('input[type=checkbox]').forEach(x=>x.onchange=()=>{ DZ.fields[+x.dataset.i].show=x.checked; });
+  t.querySelectorAll('[data-del]').forEach(x=>x.onclick=()=>{ const f=DZ.fields[+x.dataset.del]; DZ.fields=DZ.fields.filter((g,j)=>j!==+x.dataset.del&&!(f.jasper&&g.part===f.key)); renderDzCols(); if($('#dzMode').value==='crosstab') renderXt(); });
+  dragRows(t.querySelector('tbody'),DZ.fields,()=>{ renderDzCols(); if($('#dzMode').value==='crosstab') renderXt(); },vis);
+  t.querySelectorAll('input[type=text]').forEach(x=>x.oninput=()=>{ DZ.fields[+x.dataset.l].label=x.value; });
+  t.querySelectorAll('select[data-s]').forEach(x=>x.onchange=()=>{ const f=DZ.fields[+x.dataset.s]; if(x.value==='') delete f.sum; else f.sum=x.value==='sum'; });
+  t.classList.toggle('showsum',$('#dzFetch').value==='monthly_sum');
+  t.querySelectorAll('[data-up]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.up; if(i>0){ [DZ.fields[i-1],DZ.fields[i]]=[DZ.fields[i],DZ.fields[i-1]]; renderDzCols(); } });
+  t.querySelectorAll('[data-dn]').forEach(x=>x.onclick=()=>{ const i=+x.dataset.dn; if(i<DZ.fields.length-1){ [DZ.fields[i+1],DZ.fields[i]]=[DZ.fields[i],DZ.fields[i+1]]; renderDzCols(); } });
+}
+const cqName=v=>String(v||'').trim().replace(/^.*custom_queries\//,'').replace(/[?#].*$/,'');
+let dzTesting=false;
+$('#dzTest').onclick=async()=>{
+  if(dzTesting) return;
+  const cq=cqName($('#dzCq').value); if(!cq){ $('#dzErr').textContent='Isi nama custom query dulu.'; return; }
+  // uji dengan periode sempit bila ada filter tanggal, supaya query ringan; kosong -> mundur per bulan (maks 6x)
+  const useDate=DZ.filters.some(f=>f.type==='date');
+  dzTesting=true; $('#dzTest').disabled=true; $('#dzTest').textContent='Menguji…'; $('#dzErr').textContent='';
+  const t0=performance.now();
+  try{
+    let j=null, rows=[], a=$('#dzT1').value||firstDayOfMonth(), b=$('#dzT2').value||today();
+    for(let step=0; step<(useDate?7:1); step++){
+      const p=new URLSearchParams({'$per_page':5}); if(useDate){ p.set('date.$gte',a); p.set('date.$lte',b); }
+      $('#dzStatus').textContent=useDate?`Menguji query (periode ${a} s/d ${b})…`:'Menguji query…';
+      j=await zget(`/api/v3/custom_queries/${encodeURIComponent(cq)}?${p.toString()}`); rows=j.results||[];
+      if(rows.length||!useDate) break;
+      // mundur satu bulan penuh
+      const d=new Date(a+'T00:00:00'); d.setDate(1); d.setMonth(d.getMonth()-1); a=ymd(d); const e=new Date(d.getFullYear(),d.getMonth()+1,0); b=ymd(e);
+    }
+    if(useDate&&rows.length){ $('#dzT1').value=a; $('#dzT2').value=b; }
+    const keys=rows.length?Object.keys(rows[0]):[]; if(!keys.length&&!useDate){ $('#dzErr').textContent='Query berjalan tetapi tidak mengembalikan baris, jadi daftar field belum terbaca.'; }
+    const old=new Map(DZ.fields.map(c=>[c.key,c]));
+    if($('#dzMode').value==='tb'||$('#dzMode').value==='journal'){ const miss=(($('#dzMode').value==='tb')?['kode_akun','nama_akun','noklasifikasi','debit','kredit','debit_a','kredit_a']:['trx_id','tanggal','nomor','kode_akun','nama_akun','debit','kredit','debit_a','kredit_a']).filter(k=>keys.length&&!keys.includes(k)); if(miss.length) $('#dzErr').textContent='Field yang dibutuhkan tidak ada di hasil query: '+miss.join(', '); DZ.fields=fixedFields($('#dzMode').value); }
+    else if($('#dzMode').value==='ledger') DZ.fields=ledgerFields(DZ.fields,keys.includes('debit_a')||keys.includes('kredit_a')||undefined); else {
+      const fields=[];
+      for(const k of keys){
+        const isJ=rows.length&&rows.filter(r=>BARIS_RE.test(String(r[k]??''))).length>rows.length*0.8;
+        fields.push({...(old.get(k)||{}),key:k,label:old.get(k)?.label||k.replace(/_/g,' ').toUpperCase(),show:old.has(k)?old.get(k).show!==false:!isJ,sample:rows[0][k],jasper:isJ||undefined});
+        if(isJ){ const d=decodeBaris(rows.find(r=>decodeBaris(r[k])?.tipe==='A')?.[k]??rows[0][k])||{}; const smp={kode:d.kode,nama:d.label,tipe:d.tipe,lvl:d.lvl,sort:d.sort};
+          for(const [pt,lab] of Object.entries(JASPER_PARTS)){ const kk=k+'.'+pt; fields.push({...(old.get(kk)||{}),key:kk,label:old.get(kk)?.label||(pt==='kode'?'KODE':pt==='nama'?'NAMA':lab.toUpperCase()),show:old.has(kk)?old.get(kk).show!==false:(pt==='kode'||pt==='nama'),sample:smp[pt],part:k}); } }
+      }
+      // urutan yang sudah diatur user dipertahankan; field baru dari query ditaruh di belakang
+      const pos=new Map(DZ.fields.map((c,i)=>[c.key,i])); const N=pos.size;
+      fields.sort((a,b)=>(pos.has(a.key)?pos.get(a.key):N+keys.indexOf(a.part||a.key))-(pos.has(b.key)?pos.get(b.key):N+keys.indexOf(b.part||b.key)));
+      DZ.fields=[...fields, ...DZ.fields.filter(c=>!keys.includes(c.key)&&!keys.includes(c.part))];
+      if(!(DZ.collapsed instanceof Set)||!old.size) DZ.collapsed=new Set(fields.filter(f=>f.jasper).map(f=>f.key));   // bagian field baris disembunyikan dulu; klik ▸ untuk membuka
+    }
+    renderDzCols(); if($('#dzMode').value==='crosstab') renderXt(); renderGroupBy();
+    $('#dzStatus').textContent=`OK — ${keys.length} field · ${(j.count??'?')} baris${useDate?` (${a} s/d ${b})`:''} · ${((performance.now()-t0)/1000).toFixed(1)} detik`;
+    if(!keys.length&&useDate) $('#dzErr').textContent='Tidak ada baris pada periode uji maupun 6 bulan sebelumnya. Ubah periode uji ke bulan yang ada datanya, lalu klik Tes query lagi.';
+  }catch(err){ $('#dzErr').textContent='Gagal: '+err.message; $('#dzStatus').textContent=''; }
+  finally{ dzTesting=false; $('#dzTest').disabled=false; $('#dzTest').textContent='Tes query'; }
+};
+$('#dzSave').onclick=async()=>{
+  const dm=$('#dzMode').value, mode=(dm==='ledger'&&$('#dzLedgerSrc').value==='legacy')?'legacy':dm;
+  const body={ id:DZ.id, title:$('#dzName').value.trim(), category:($('#dzCatSel').value==='__new'?$('#dzCat').value.trim():$('#dzCatSel').value)||'Laporan Lainnya', cq:cqName($('#dzCq').value), mode,
+    cqSaldo:mode==='ledger'?(cqName($('#dzSaldo').value)||null):null, filters:DZ.filters.map(f=>({...f,key:f.type==='date'?'date':(f.key||'').trim()})), cols:DZ.fields.map(({key,label,show,sum,part})=>({key,label,show,...(sum!=null?{sum}:{}),...(part?{part}:{})})),
+    crosstab:{ rows:DZ.xrows, cols:DZ.xcols, value:$('#xVal').value, agg:$('#xAgg').value, totRow:$('#xTotRow').checked, totCol:$('#xTotCol').checked, totGroup:$('#xTotGroup').checked, labKode:$('#xLabKode').value.trim()||'KODE', labAkun:$('#xLabAkun').value.trim()||'AKUN' },
+    ...((dm==='tb'||dm==='journal')?{cur:curOf()}:{}),
+    fetch:dm==='ledger'||dm==='journal'?'monthly':dm==='tb'?'once':$('#dzFetch').value, totRow:$('#tTot').checked, groupBy:DZ.groupBy, groupSub:$('#gSub').checked, groupHide:$('#gHide').checked, labKode:$('#tLabKode').value.trim()||'KODE', labAkun:$('#tLabAkun').value.trim()||'AKUN' };
+  if(body.filters.some(f=>f.type!=='date'&&!f.key)){ $('#dzErr').textContent='Setiap filter harus punya nama parameter.'; return; }
+  if(['ledger','legacy','tb','journal'].includes(body.mode)&&!body.filters.some(f=>f.type==='date')){ $('#dzErr').textContent='Bentuk laporan ini memerlukan filter tanggal.'; return; }
+  if(body.mode==='crosstab'&&(!body.crosstab.rows.length||!body.crosstab.cols.length||!body.crosstab.value)){ $('#dzErr').textContent='Crosstab memerlukan minimal satu field baris, satu field kolom, dan nilai.'; return; }
+  if(!body.title||!body.cq){ $('#dzErr').textContent='Judul dan custom query wajib diisi.'; return; }
+  if(body.mode==='ledger'&&!body.cqSaldo){ $('#dzErr').textContent='Bentuk buku besar memerlukan custom query saldo awal.'; return; }
+  $('#dzErr').textContent=''; $('#dzStatus').textContent='Menyimpan…';
+  try{ const r=await fetch('/reports',{method:'POST',headers:rptHeaders({'Content-Type':'application/json'}),body:JSON.stringify(body)}); const j=await r.json(); if(!r.ok) throw new Error(j.error||'HTTP '+r.status);
+    const isNew=!DZ.id; await buildCatalog(); showPage('pgCat'); $('#dzStatus').textContent=''; toast(isNew?`Laporan "${body.title}" berhasil dibuat`:`Laporan "${body.title}" berhasil disimpan`); }
+  catch(err){ $('#dzErr').textContent=err.message; $('#dzStatus').textContent=''; toast('Gagal menyimpan: '+err.message,'err'); }
+};
+$('#dzDelete').onclick=async()=>{ if(!DZ.id||!confirm('Hapus desain laporan ini?')) return; await fetch('/reports/'+encodeURIComponent(DZ.id),{method:'DELETE',headers:rptHeaders()}); await buildCatalog(); showPage('pgCat'); toast('Laporan dihapus'); };
+
+/* ---------- model filter ----------
+   {key, label, type:'date'|'select'|'multi'|'text', source:'accounts'|'contacts'|'departments'|'projects'|'cost_codes'|'warehouses'|'endpoint', endpoint}
+*/
+const SOURCES={
+  accounts:   { ep:'/api/v2/accounts?per_page=2000&sort[code]=asc', code:['code','account_code'], name:['name','nama'] },
+  contacts:   { ep:'/api/v2/contacts?per_page=30&search=', remote:true, code:['code'], name:['name','perusahaan','company_name'] },
+  departments:{ ep:'/api/v2/departments?per_page=500', code:['code'], name:['name','nama'] },
+  projects:   { ep:'/api/v2/projects?per_page=500', code:['code'], name:['name','nama'] },
+  cost_codes: { ep:'/api/v2/cost_codes?per_page=500', code:['code'], name:['name','nama'] },
+  warehouses: { ep:'/api/v2/warehouses?per_page=500', code:['code'], name:['name','nama'] },
+};
+const PRESET_FILTERS={
+  date:{key:'date',label:'Tanggal',type:'date'},
+  account:{key:'account_id',label:'Akun',type:'multi',source:'accounts'},
+  account_range:{key:'account_code',label:'Akun',type:'range',source:'accounts'},
+  contact:{key:'contact_id',label:'Kontak',type:'select',source:'contacts'},
+  dept:{key:'department_id',label:'Departemen',type:'select',source:'departments'},
+  proj:{key:'project_id',label:'Proyek',type:'select',source:'projects'},
+  cost:{key:'cost_code_id',label:'Kode Biaya',type:'select',source:'cost_codes'},
+  wh:{key:'warehouse_id',label:'Gudang',type:'select',source:'warehouses'},
+  text:{key:'',label:'Filter',type:'text'},
+  endpoint:{key:'',label:'Pilihan',type:'select',source:'endpoint',endpoint:'/api/v2/'},
+};
+const BUILTIN_FILTERS=[PRESET_FILTERS.date,PRESET_FILTERS.account_range,{...PRESET_FILTERS.account,label:'Akun tertentu'},PRESET_FILTERS.contact,PRESET_FILTERS.dept,PRESET_FILTERS.proj].map(f=>({...f}));
+function legacyFilters(f){ f=f||{}; const out=[]; if(f.date!==false) out.push({...PRESET_FILTERS.date}); if(f.account) out.push({...PRESET_FILTERS.account}); if(f.contact) out.push({...PRESET_FILTERS.contact}); if(f.dept) out.push({...PRESET_FILTERS.dept}); if(f.proj) out.push({...PRESET_FILTERS.proj}); return out; }
+function filtersOf(r){ if(r.custom) return Array.isArray(r.filters)?r.filters:legacyFilters(r.filters);
+  if(Array.isArray(r.filters)) return r.filters.map(k=>k==='account'?{...PRESET_FILTERS.account,label:'Akun tertentu'}:{...PRESET_FILTERS[k]});
+  return BUILTIN_FILTERS; }
+// hanya data aktif yang ditawarkan di filter (mengenali berbagai nama field status di API Zahir)
+const isActive=o=>{ if(!o||typeof o!=='object') return true;
+  for(const k of ['is_active','active','aktif','is_aktif','enabled']) if(k in o){ const v=o[k]; if(v===false||v===0||v==='0'||v==='false'||v==='N'||v==='n') return false; }
+  for(const k of ['status','state']) if(typeof o[k]==='string'&&/inactive|nonaktif|non-aktif|tidak aktif|disabled|archived/i.test(o[k])) return false;
+  for(const k of ['is_inactive','inactive','nonaktif','is_deleted','deleted','archived']) if(o[k]===true||o[k]===1||o[k]==='1') return false;
+  if(o.deleted_at) return false; return true; };
+const pickv=(o,keys)=>{ for(const k of keys) if(o[k]!=null&&o[k]!=='') return o[k]; return ''; };
+const LOOK={};  // cache daftar pilihan per sumber/endpoint (per database)
+function LOOK_CLEAR(){ for(const k of Object.keys(LOOK)) delete LOOK[k]; }
+async function optionsFor(f){
+  const src=f.source==='endpoint'?{ep:f.endpoint,code:['code','kode'],name:['name','nama','title','description']}:SOURCES[f.source]; if(!src||!src.ep) return [];
+  const k=src.ep; if(LOOK[k]) return LOOK[k];
+  try{ LOOK[k]=listOf(await zget(src.ep)).filter(isActive).map(x=>({id:x.id??x.value??x.code, code:String(pickv(x,src.code)), name:String(pickv(x,src.name))})); }catch{ LOOK[k]=[]; }
+  return LOOK[k];
+}
+const FULL={};  // daftar penuh per sumber (dimuat sekali saat server tidak menyaring)
+async function fullList(src){ const k='full:'+src.ep; if(FULL[k]) return FULL[k]; const base=src.ep.replace(/[?&](per_page|search)=[^&]*/g,'').replace(/[?&]$/,''); const out=[]; try{ for(let page=1;page<=20;page++){ const j=await zget(base+(base.includes('?')?'&':'?')+'per_page=1000&page='+page); const l=listOf(j); appendAll(out,l); if(l.length<1000) break; } }catch{} FULL[k]=out.filter(isActive).map(x=>({id:x.id, code:String(pickv(x,src.code)), name:String(pickv(x,src.name))})); return FULL[k]; }
+const matchQ=(x,q)=>(x.code+' '+x.name).toLowerCase().includes(q);
+async function remoteSearch(f,q){ const src=SOURCES[f.source]; q=(q||'').trim().toLowerCase();
+  let items=[]; try{ items=listOf(await zget(src.ep+encodeURIComponent(q))).filter(isActive).map(x=>({id:x.id, code:String(pickv(x,src.code)), name:String(pickv(x,src.name))})); }catch{}
+  if(!q) return items;
+  const hit=items.filter(x=>matchQ(x,q));
+  if(hit.length) return hit;                 // server menyaring (atau kebetulan cocok)
+  return (await fullList(src)).filter(x=>matchQ(x,q)).slice(0,100);   // server mengabaikan 'search' -> saring sendiri dari daftar penuh
+}
+let FV={};   // nilai filter aktif: key -> {type, get()}
+async function buildFilterPanel(r){
+  const defs=filtersOf(r); FV={}; const g=$('#fGrid'); g.innerHTML='';
+  for(let i=0;i<defs.length;i++){
+    const f=defs[i], id='f'+i, wrap=document.createElement('div');
+    if(f.type==='date'){
+      wrap.className='c2'; wrap.innerHTML=`<label>${esc(f.label||'Tanggal')}</label><select id="${id}p" style="margin-bottom:8px"><option value="month">Bulan ini</option><option value="today">Hari ini</option><option value="lmonth">Bulan lalu</option><option value="q">Kuartal ini</option><option value="year">Tahun ini</option><option value="lyear">Tahun lalu</option><option value="custom">Kustom…</option></select><div class="rng"><input type="date" id="${id}a"><span class="arr">→</span><input type="date" id="${id}b"></div>`; g.appendChild(wrap);
+      $('#'+id+'a').value=firstDayOfMonth(); $('#'+id+'b').value=today();
+      const preset=v=>{ const n=new Date(); const y=n.getFullYear(), m=n.getMonth(); const D=(a,b)=>{ $('#'+id+'a').value=ymd(a); $('#'+id+'b').value=ymd(b); };
+        if(v==='today') D(n,n); else if(v==='month') D(new Date(y,m,1),new Date(y,m+1,0)); else if(v==='lmonth') D(new Date(y,m-1,1),new Date(y,m,0)); else if(v==='q'){ const q=Math.floor(m/3)*3; D(new Date(y,q,1),new Date(y,q+3,0)); } else if(v==='year') D(new Date(y,0,1),new Date(y,11,31)); else if(v==='lyear') D(new Date(y-1,0,1),new Date(y-1,11,31)); };
+      $('#'+id+'p').onchange=()=>preset($('#'+id+'p').value);
+      for(const sd of ['a','b']) $('#'+id+sd).addEventListener('change',()=>{ $('#'+id+'p').value='custom'; });
+      FV[f.key||'date']={type:'date',get:()=>({d1:$('#'+id+'a').value,d2:$('#'+id+'b').value})};
+    } else if(f.type==='text'){
+      wrap.innerHTML=`<label>${esc(f.label)}</label><input id="${id}" placeholder="kosong = semua">`; g.appendChild(wrap);
+      FV[f.key]={type:'single',get:()=>$('#'+id).value.trim(),text:()=>$('#'+id).value.trim()}; if(f.apply==='local') FV[f.key].local=()=>{ const t=$('#'+id).value.trim(); return t?{col:f.col||f.key,type:'text',text:t}:null; };
+    } else if(f.type==='select'){
+      const remote=SOURCES[f.source]?.remote;
+      if(remote){
+        wrap.innerHTML=`<label>${esc(f.label)}</label><div class="lk"><input id="${id}" placeholder="Semua — ketik untuk mencari"><div class="list hide" id="${id}l"></div></div>`; g.appendChild(wrap);
+        let sel=null; combobox('#'+id,'#'+id+'l',null,c=>{ sel=c; $('#'+id).placeholder=(c.code+' '+c.name).trim(); $('#'+id).value=''; },q=>remoteSearch(f,q));
+        $('#'+id).addEventListener('keydown',e=>{ if(e.key==='Backspace'&&!e.target.value){ sel=null; e.target.placeholder='Semua — ketik untuk mencari'; } });
+        FV[f.key]={type:'single',get:()=>sel?sel.id:'',text:()=>sel?(sel.code+' '+sel.name).trim():''}; if(f.apply==='local') FV[f.key].local=()=>sel?{col:f.col||f.key,type:'single',values:[sel]}:null;
+      } else {
+        // dropdown dengan pencarian (ketik untuk menyaring; kosongkan dengan Backspace)
+        wrap.innerHTML=`<label>${esc(f.label)}</label><div class="lk"><input id="${id}" placeholder="Semua — klik atau ketik untuk mencari"><div class="list hide" id="${id}l"></div></div>`; g.appendChild(wrap);
+        let list=[]; optionsFor(f).then(l=>list=l); let sel=null;
+        combobox('#'+id,'#'+id+'l',()=>list,c=>{ sel=c; $('#'+id).placeholder=(c.code+' '+c.name).trim(); $('#'+id).value=''; });
+        $('#'+id).addEventListener('keydown',e=>{ if(e.key==='Backspace'&&!e.target.value){ sel=null; e.target.placeholder='Semua — klik atau ketik untuk mencari'; } });
+        FV[f.key]={type:'single',get:()=>sel?sel.id:'',text:()=>sel?(sel.code+' '+sel.name).trim():''}; if(f.apply==='local') FV[f.key].local=()=>sel?{col:f.col||f.key,type:'single',values:[sel]}:null;
+      }
+    } else if(f.type==='range'){
+      // dari – hingga: dua pilihan tunggal; dikirim sebagai <key>.$gte / <key>.$lte memakai KODE (bukan id), mis. account_code
+      wrap.className='c2'; wrap.innerHTML=`<label>${esc(f.label)} <small style="text-transform:none;letter-spacing:0;color:#8a97a8">— dari / hingga</small></label><div class="rng"><div class="lk"><input id="${id}a" placeholder="Semua (dari awal)"><div class="list hide" id="${id}al"></div></div><span class="arr">→</span><div class="lk"><input id="${id}b" placeholder="Semua (sampai akhir)"><div class="list hide" id="${id}bl"></div></div></div>`; g.appendChild(wrap);
+      const remote=SOURCES[f.source]?.remote; let list=[]; if(!remote) optionsFor(f).then(l=>list=l);
+      const pick={a:null,b:null};
+      for(const side of ['a','b']){ combobox('#'+id+side,'#'+id+side+'l',()=>list,c=>{ pick[side]=c; $('#'+id+side).placeholder=(c.code+' '+c.name).trim(); $('#'+id+side).value=''; },remote?q=>remoteSearch(f,q):null);
+        $('#'+id+side).addEventListener('keydown',e=>{ if(e.key==='Backspace'&&!e.target.value){ pick[side]=null; e.target.placeholder=side==='a'?'Semua (dari awal)':'Semua (sampai akhir)'; } }); }
+      FV[f.key]={type:'range',get:()=>({from:pick.a?String(pick.a.code||pick.a.id):'',to:pick.b?String(pick.b.code||pick.b.id):''}),text:()=>pick.a||pick.b?`${pick.a?pick.a.code:'awal'} s/d ${pick.b?pick.b.code:'akhir'}`:''}; if(f.apply==='local') FV[f.key].local=()=>pick.a||pick.b?{col:f.col||f.key,type:'range',from:pick.a?String(pick.a.code||pick.a.id):'',to:pick.b?String(pick.b.code||pick.b.id):''}:null;
+    } else if(f.type==='multi'){
+      wrap.className='c2'; wrap.innerHTML=`<label>${esc(f.label)} <small style="text-transform:none;letter-spacing:0;color:#8a97a8">— bisa lebih dari satu</small></label><div class="lk"><input id="${id}" placeholder="Semua — klik untuk memilih"><div class="list hide" id="${id}l"></div></div><div class="chips" id="${id}c"></div>`; g.appendChild(wrap);
+      const sel=[]; const draw=()=>{ $('#'+id+'c').innerHTML=sel.map((a,j)=>`<span class="chip">${esc((a.code+' '+a.name).trim())}<b data-j="${j}">×</b></span>`).join(''); $('#'+id+'c').querySelectorAll('b').forEach(b=>b.onclick=()=>{ sel.splice(+b.dataset.j,1); draw(); }); };
+      const remote=SOURCES[f.source]?.remote; let list=[]; if(!remote) optionsFor(f).then(l=>list=l);
+      combobox('#'+id,'#'+id+'l',()=>list,a=>{ if(!sel.find(x=>x.id===a.id)){ sel.push(a); draw(); } },remote?q=>remoteSearch(f,q):null,()=>sel);
+      FV[f.key]={type:'multi',get:()=>sel.map(x=>x.id),text:()=>sel.map(x=>(x.code+' '+x.name).trim()).join(', ')}; if(f.apply==='local') FV[f.key].local=()=>sel.length?{col:f.col||f.key,type:'multi',values:sel.map(x=>({id:x.id,code:x.code,name:x.name}))}:null;
+    }
+  }
+}
+/* nilai filter -> {date:{d1,d2}|null, base:{param:value}, combos:[{param:value},...]} */
+function collectFilters(){
+  let date=null; const base={}; const multis=[]; const local=[];
+  for(const [k,v] of Object.entries(FV)){
+    if(v.local){ const l=v.local(); if(l) local.push(l); continue; }
+    if(v.type==='date'){ date=v.get(); }
+    else if(v.type==='single'){ const x=v.get(); if(x!=='') base[k]=x; }
+    else if(v.type==='range'){ const x=v.get(); if(x.from) base[k+'.$gte']=x.from; if(x.to) base[k+'.$lte']=x.to; }
+    else { const arr=v.get(); if(arr.length) multis.push(arr.map(x=>({[k]:x}))); }
+  }
+  let combos=[{}]; for(const m of multis) combos=combos.flatMap(c=>m.map(x=>({...c,...x})));
+  return {date,base,combos,local};
+}
+
+/* ---------- lookups ---------- */
+async function loadLookups(){
+  try{ const j=await zget('/api/v2/transaction_types?per_page=1000&select=type,code'); st.ttypes={}; for(const t of listOf(j)) if(t.type&&t.code) st.ttypes[t.type]=t.code; }catch{}
+}
+function combobox(inputSel,listSel,source,onPick,remote,selected){
+  const inp=$(inputSel), box=$(listSel); let t, keep=false;
+  const show=async()=>{
+    const q=inp.value.trim().toLowerCase();
+    let items;
+    if(remote){ items=await remote(q); }                       // kontak: cari di server (kosong = daftar awal)
+    else { items=(source?source():[]); if(q) items=items.filter(x=>(x.code+' '+x.name).toLowerCase().includes(q)); }
+    items=items.slice(0,q?60:400);
+    const sel=selected?new Set(selected().map(x=>String(x.id))):null;
+    box.innerHTML=items.length?items.map((x,i)=>`<div data-i="${i}" class="${sel&&sel.has(String(x.id))?'on':''}"><span class="lc">${esc(x.code)}</span><span class="ln">${esc(x.name)}</span>${sel&&sel.has(String(x.id))?'<span class="lk-ok">✓</span>':''}</div>`).join(''):'<div style="color:#999">tidak ada</div>';
+    box.classList.remove('hide');
+    // setelah dipilih, daftar ditutup supaya pilihan yang sudah ada terlihat; klik kolom lagi untuk menambah
+    box.querySelectorAll('div[data-i]').forEach(el=>el.onclick=()=>{ onPick(items[+el.dataset.i]); inp.value=''; box.classList.add('hide'); inp.blur(); });
+  };
+  inp.addEventListener('input',()=>{ clearTimeout(t); t=setTimeout(show,200); });
+  inp.addEventListener('focus',()=>show());   // klik kolom → daftar langsung muncul
+  inp.addEventListener('click',()=>{ if(box.classList.contains('hide')) show(); });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Escape') box.classList.add('hide'); });
+  document.addEventListener('click',e=>{ if(keep){ keep=false; return; } if(!box.contains(e.target)&&e.target!==inp) box.classList.add('hide'); });
+}
+/* ---------- fetch (per bulan, berurutan, langsung disalurkan ke penyusun laporan) ---------- */
+let PER_PAGE=10000;   // versi online: lebih kecil (batas respons fungsi Vercel 4,5 MB)
+// Backend Zahir memakai satu koneksi DB per sesi: query paralel memicu "conn busy".
+// Jadi request dijalankan berurutan, dan diulang otomatis bila tetap kena busy (mis. user lain di DB yang sama).
+const CONCURRENCY=1;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function zgetRetry(pathq,tries=6){
+  for(let i=0;;i++){
+    try{ return await zget(pathq); }
+    catch(err){ if(i>=tries-1 || !/busy|too many|deadlock|timeout/i.test(err.message)) throw err; ov.sub('Mengambil data…'); await sleep(1500*(i+1)); }
+  }
+}
+// sink(row): tiap baris langsung diserahkan ke penyusun (tidak ditumpuk di memori); tanpa sink → kembalikan array
+let LF=null;   // predikat filter 'di aplikasi' untuk pengambilan yang sedang berjalan
+// ---- hemat beban server Zahir ----
+// 1) Cache hasil: laporan + filter yang sama persis dalam 15 menit ditampilkan dari memori browser (⟳ memaksa ambil ulang)
+const RCACHE=new Map(), RCACHE_TTL=15*60*1000, RCACHE_MAX=4;
+function cacheKey(){ return JSON.stringify({co:st.company?.id||null, slug:st.slug||null, db:st.dataBase||st.server||null, req:reportRequest()}); }
+function cachePut(key,val){ RCACHE.delete(key); RCACHE.set(key,{...val,at:Date.now()}); while(RCACHE.size>RCACHE_MAX) RCACHE.delete(RCACHE.keys().next().value); }
+function cacheGet(key){ const v=RCACHE.get(key); if(!v) return null; if(Date.now()-v.at>RCACHE_TTL){ RCACHE.delete(key); return null; } return v; }
+// 2) Kolom seperlunya: bila server menghormati $select, hanya kolom yang dipakai laporan yang diminta (dicek sekali per custom query, 1 baris)
+const SEL={};
+async function probeSelect(cq,params,report,local){
+  const cols=usedColumns(report,local); if(!cols||SEL[cq]!==undefined) return; SEL[cq]=null;
+  for(const key of ['$select','select']){
+    try{ const j=await zget(`/api/v3/custom_queries/${encodeURIComponent(cq)}?${new URLSearchParams({...params,'$page':1,'$per_page':1,[key]:cols.join(',')})}`); const row=(j.results||[])[0]; if(!row) return;
+      if(selectHonored(row,cols)){ SEL[cq]={[key]:cols.join(',')}; return; } }catch{}
+  }
+}
+// 4) Konfirmasi bila jumlah baris sangat besar — menarik ratusan ribu baris membebani server Zahir dan browser
+const ROW_WARN=()=>{ const v=Number(st.rowWarn); return Number.isFinite(v)&&v>=0?v:300000; };   // dari pengaturan server (/prefs); 0 = tidak pernah bertanya
+const fmtInt=n=>Number(n).toLocaleString('id-ID'); const parseInt_=s=>{ const t=String(s||'').replace(/[^\d]/g,''); return t===''?NaN:Number(t); };
+async function loadPrefs(){ try{ const j=await jfetch('/prefs'); st.rowWarn=j.rowWarn; }catch{ st.rowWarn=300000; } $('#prefRowWarn').value=fmtInt(st.rowWarn); }
+$('#prefRowWarn').addEventListener('blur',()=>{ const v=parseInt_($('#prefRowWarn').value); if(!isNaN(v)) $('#prefRowWarn').value=fmtInt(v); });
+$('#prefSave').onclick=async()=>{ const v=parseInt_($('#prefRowWarn').value); if(isNaN(v)){ $('#prefNote').textContent='Isi angka, mis. 1.000.000'; return; }
+  try{ const j=await jfetch('/prefs',{method:'POST',headers:{'Content-Type':'application/json','x-zahir-token':st.token||''},body:JSON.stringify({rowWarn:v})}); st.rowWarn=j.rowWarn; $('#prefRowWarn').value=fmtInt(j.rowWarn); $('#prefNote').textContent=j.rowWarn===0?'Tersimpan — tidak akan pernah bertanya.':`Tersimpan — konfirmasi muncul bila laporan > ${fmtInt(j.rowWarn)} baris.`; toast('Pengaturan tersimpan'); }
+  catch(err){ $('#prefNote').textContent='Gagal: '+err.message; } };
+loadPrefs();
+async function fetchChunk(params,onRows,cq=st.cq,onCount,sink){
+  const q=p=>new URLSearchParams({...params,...(SEL[cq]||{}),'$page':p,'$per_page':PER_PAGE}).toString(); let page=1; const out=sink?null:[];
+  while(true){
+    const j=await zgetRetry(`/api/v3/custom_queries/${encodeURIComponent(cq)}?${q(page)}`); const raw=j.results||[]; const rows=LF?raw.filter(LF):raw;
+    if(page===1&&onCount) onCount(Number(j.count)||raw.length);
+    if(sink){ for(let i=0;i<rows.length;i++) sink(rows[i]); } else appendAll(out,rows);
+    onRows(raw.length); const pages=j.page_context?.total_pages||1; if(page>=pages||!rows.length) break; page++;
+    await sleep(0);
+  }
+  return out;
+}
+async function parallel(items,limit,fn){ const out=new Array(items.length); let i=0; await Promise.all(Array.from({length:Math.min(limit,items.length)},async()=>{ while(i<items.length){ const k=i++; out[k]=await fn(items[k],k); } })); return out; }
+// Paket permintaan laporan (dipakai preview di browser dan ekspor langsung di server)
+function reportRequest(){
+  const F=collectFilters(); const r=st.report;
+  const mode=r.custom?r.mode:(r.mode==='raw'?'ledger':(r.mode==='tb'||r.mode==='journal')?r.mode:'legacy');
+  return { F, mode, monthly: mode==='tb'?false:mode==='journal'||mode==='ledger'||mode==='legacy'||r.fetch==='monthly'||r.fetch==='monthly_sum', summarize: mode==='table'&&r.fetch==='monthly_sum',
+    // custom query buku besar "jadi" sebagai cadangan bila bb_trx tidak ada di database ini (laporan bawaan, termasuk yang sudah diubah desainnya)
+    report:{ id:r.id, title:r.title, custom:!!r.custom, mode, cur:r.cur||null, cq:r.cq, cqTrx:r.cqTrx, cqSaldo:r.cqSaldo, crosstab:r.crosstab, cols:r.cols, fetch:r.fetch, totRow:r.totRow, groupBy:r.groupBy||[], groupSub:r.groupSub, groupHide:r.groupHide, labKode:r.labKode, labAkun:r.labAkun,
+      legacyCq: mode==='ledger' ? (r.custom ? (builtinReports().find(b=>b.id===r.id)?.cq||null) : r.cq) : null } };
+}
+$('#btnRun').onclick=()=>runReport({force:true});   // ⟳ = ambil ulang dari server, abaikan cache
+async function runReport({force=false}={}){
+  const {F,mode,monthly,summarize,report}=reportRequest(); const useDate=!!F.date; const d1=F.date?.d1||'', d2=F.date?.d2||'';
+  if(useDate&&(!d1||!d2)){ alert('Isi rentang tanggal'); return; }
+  const ov=PG;   // progres ditampilkan di halaman, bukan overlay
+  LF=localPredicate(F.local); st.shown=true; $('#btnRun').disabled=true; $('#btnFilter').disabled=true; const t0=performance.now();
+  $('#rpt').classList.remove('hide'); $('#rBody').innerHTML=''; $('#more').classList.add('hide'); $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=useDate?`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`:''; filterSummary();
+  const ckey=cacheKey(); const hit=force?null:cacheGet(ckey);
+  if(hit){
+    try{ st.rows=hit.rows; st.d1=d1; st.d2=d2;
+      if(mode==='journal') renderJournal(hit.rows,d1,d2); else if(mode==='tb') renderTB(hit.rows,d1,d2); else if(mode==='crosstab') renderCrosstab(hit.rows,d1,d2); else if(mode==='table') renderTable(hit.rows,d1,d2); else render(hit.rows,d1,d2);
+      const at=new Date(hit.at); $('#status').textContent=`${hit.rows.length.toLocaleString('id-ID')} baris · dari hasil pengambilan ${at.getHours().toString().padStart(2,'0')}:${at.getMinutes().toString().padStart(2,'0')} (tidak menghubungi server) · klik ⟳ untuk mengambil ulang`;
+      $('#btnXlsx').disabled=$('#btnPrint').disabled=$('#btnExpand').disabled=!hit.rows.length;
+    }catch(err){ $('#status').textContent='Gagal: '+err.message; }
+    finally{ $('#btnRun').disabled=false; $('#btnFilter').disabled=false; }
+    return;
+  }
+  ov.show('Mengambil data laporan', 'Menyiapkan…'); NET.reset();
+  let warned=false; const guard=n=>{ const lim=ROW_WARN(); if(warned||lim===0||n<=lim) return; warned=true;
+    if(!confirm(`Laporan ini sekitar ${n.toLocaleString('id-ID')} baris (batas konfirmasi: ${fmtInt(ROW_WARN())}). Menariknya sekaligus akan membebani server Zahir dan browser.\n\nSaran: persempit rentang tanggal/filter, atau pilih "Ekspor langsung ke Excel" di jendela filter (dikerjakan server aplikasi, bertahap).\n\nTetap lanjutkan?`)) throw new Error('Dibatalkan — laporan terlalu besar ('+n.toLocaleString('id-ID')+' baris). Persempit filter atau gunakan Ekspor langsung ke Excel.'); };
+  try{
+    let got=0,done=0,total=1,expect=0; const id=n=>n.toLocaleString('id-ID');
+    const T={ rows:n=>{got+=n;T.draw();}, done:()=>{done++;T.draw();}, set total(v){total=v;T.draw();}, set expect(v){expect=v;T.draw();},
+      draw:()=>{ const pct=expect>0?Math.min(95,5+90*got/expect):5+90*done/total;
+        ov.set(pct, expect>0?`Baris ${id(Math.min(got,expect))} dari ${id(expect)} (${Math.round(pct)}%) · bagian ${done}/${total}`:`${id(got)} baris · bagian ${done}/${total}`);
+        ov.sub(expect===0&&done===0&&got===0?(total<=1?'Menjalankan query di server…':'Menghitung jumlah baris…'):done<total?`Menjalankan query bagian ${Math.min(total,done+1)}…`:'Menggabungkan…'); } };
+    const r=st.report; const legacyCq=reportRequest().report.legacyCq;
+    T.draw();
+    const countRange=async(cq,c,a,b)=>{ const q=new URLSearchParams({...F.base,...c,...(a?{'date.$gte':a,'date.$lte':b}:{}),'$page':1,'$per_page':1}).toString(); const j=await zgetRetry(`/api/v3/custom_queries/${encodeURIComponent(cq)}?${q}`); return Number(j.count)||0; };
+    // rencana pengambilan: per kombinasi filter "pilih banyak" × potongan tanggal adaptif (tahun kosong dilewati, tahun kecil sekali tarik, tahun besar per bulan)
+    const planJobs=async(cq)=>{ const jobs=[]; let expect=0;
+      for(const c of F.combos){
+        if(!useDate||!monthly){ jobs.push({...F.base,...c,...(useDate?{'date.$gte':d1,'date.$lte':d2}:{})}); continue; }
+        ov.sub('Merencanakan pengambilan data…'); const pl=await planChunks(d1,d2,(a,b)=>countRange(cq,c,a,b),PER_PAGE); expect+=pl.expect;
+        for(const [a,b] of pl.chunks) jobs.push({...F.base,...c,'date.$gte':a,'date.$lte':b}); }
+      if(monthly) guard(expect);
+      return {jobs,expect}; };
+    const runFlat=async(cq,sink)=>{ const {jobs,expect}=await planJobs(cq); if(monthly) T.expect=expect; T.total=jobs.length; let seen=0;
+      if(mode==='table'||mode==='crosstab'){ ov.sub('Memeriksa dukungan pemilihan kolom…'); await probeSelect(cq,jobs[0]||{},report,F.local); }
+      return parallel(jobs,CONCURRENCY,async p=>{ const rr=await fetchChunk(p,n=>T.rows(n),cq,monthly?null:c=>{ seen+=c; T.expect=seen; guard(seen); },sink); T.done(); return rr; }); };
+    const runLedger=async(cqTrx,cqSaldo)=>{
+      // saldo awal: per kombinasi, tanpa filter kontak (kontak hanya mempengaruhi baris transaksi);
+      // dua potongan tanggal yang tidak tumpang tindih (sebelum tahun berjalan + tahun berjalan), potongan tahun berjalan dilewati bila periode mulai 1 Januari
+      const SA=F.combos.flatMap(c=>{ const b={...F.base,...c}; delete b.contact_id; return LedgerBuilder.saChunks(d1,b); });
+      const {jobs:TX,expect}=await planJobs(cqTrx); T.expect=expect; T.total=SA.length+TX.length;
+      const B=new LedgerBuilder();
+      const all=[...SA.map(s=>({p:s.p,cq:cqSaldo,sink:r=>B.addSa(r,s.ytd),quiet:true})),...TX.map(p=>({p,cq:cqTrx,sink:r=>B.addTrx(r)}))];
+      await parallel(all,CONCURRENCY,async j=>{ await fetchChunk(j.p,j.quiet?()=>{}:n=>T.rows(n),j.cq,null,j.sink); T.done(); });
+      ov.sub('Menyusun buku besar…'); await sleep(20);
+      return B.build(d1);
+    };
+    let rows=null;
+    if(mode==='tb'){
+      if(!useDate) throw new Error('Trial balance memerlukan filter tanggal');
+      // saldo awal: 2 potongan tanpa tumpang tindih (sama dengan buku besar) + 1 permintaan mutasi periode, per kombinasi filter
+      const SA=F.combos.flatMap(c=>LedgerBuilder.saChunks(d1,{...F.base,...c}));
+      const MU=F.combos.map(c=>({...F.base,...c,'date.$gte':d1,'date.$lte':d2}));
+      T.total=SA.length+MU.length; const TB=new TrialBalance();
+      try{
+        await parallel([...SA.map(s=>({p:s.p,sink:x=>TB.addSa(x,s.ytd)})),...MU.map(p=>({p,sink:x=>TB.addMut(x)}))],CONCURRENCY,async j=>{ await fetchChunk(j.p,n=>T.rows(n),r.cq||r.cqSaldo,null,j.sink); T.done(); });
+      }catch(err){ if(/not found|tidak ditemukan|404|custom query/i.test(err.message)) throw new Error(err.message+' — custom query '+(r.cq||r.cqSaldo)+' belum terpasang di database ini. Kembali ke daftar laporan lalu klik "Periksa custom query bawaan".'); throw err; }
+      ov.sub('Menyusun trial balance…'); rows=TB.rows(tbRowOpts(await tbAccounts()));
+    }
+    if(mode==='journal'){
+      if(!useDate) throw new Error('Laporan jurnal memerlukan filter tanggal');
+      const JB=new JournalBuilder();
+      try{ await runFlat(r.cq,x=>JB.add(x)); }
+      catch(err){ if(/not found|tidak ditemukan|404|custom query/i.test(err.message)) throw new Error(err.message+' — custom query '+r.cq+' belum terpasang di database ini. Kembali ke daftar laporan lalu klik "Periksa custom query bawaan".'); throw err; }
+      ov.sub('Menyusun jurnal…'); await sleep(20); rows=JB.build();
+      const fc=tbRowOpts(await tbAccounts()).code; for(const x of rows) if(x.kode_akun) x.kode_akun=fc(x.kode_akun);   // kode akun berformat seperti di Zahir
+    }
+    if(!rows && mode==='ledger'){
+      if(!useDate) throw new Error('Laporan buku besar memerlukan filter tanggal');
+      try{ rows=await runLedger(r.custom?r.cq:r.cqTrx, r.cqSaldo); }
+      catch(err){ const missing=/not found|tidak ditemukan|404|custom query/i.test(err.message);
+        if(missing&&!legacyCq) throw new Error(err.message+' — custom query untuk laporan ini belum terpasang di database ini. Kembali ke daftar laporan lalu klik tombol "Pasang … ke database ini" (baris Custom query di bawah daftar), atau ubah desain laporan ke custom query yang tersedia.');
+        if(!missing) throw err; ov.sub('Mengambil data…'); got=0; done=0; expect=0; }
+    }
+    if(!rows && (mode==='legacy' || (mode==='ledger'&&legacyCq))){ const M=new LegacyMerger(); await runFlat(mode==='legacy'?r.cq:legacyCq,x=>M.add(x)); ov.sub('Menggabungkan…'); await sleep(20); rows=M.build(d1); }
+    if(!rows && mode==='table'){ if(summarize){ const S=new Summarizer(r.cols); await runFlat(r.cq,x=>S.add(x)); ov.sub('Menjumlahkan per kelompok…'); await sleep(20); rows=S.rows(); } else { rows=[]; await runFlat(r.cq,x=>rows.push(x)); } }
+    if(!rows && mode==='crosstab'){ const pv=new Pivot(r.crosstab); await runFlat(r.cq,x=>pv.add(x)); ov.sub('Merangkum crosstab…'); await sleep(20); rows=pv.finish(); }
+    ov.sub('Menyusun tampilan…'); ov.set(97,''); await sleep(30);
+    st.rows=rows; st.d1=d1; st.d2=d2; cachePut(ckey,{rows});
+    if(mode==='journal') renderJournal(rows,d1,d2); else if(mode==='tb') renderTB(rows,d1,d2); else if(mode==='crosstab') renderCrosstab(rows,d1,d2); else if(mode==='table') renderTable(rows,d1,d2); else render(rows,d1,d2);
+    const selNote=(mode==='table'||mode==='crosstab')&&SEL[r.cq]?` · kolom diminta seperlunya (${Object.values(SEL[r.cq])[0].split(',').length} kolom)`:'';
+    $('#status').textContent=`${rows.length.toLocaleString('id-ID')} baris · ${((performance.now()-t0)/1000).toFixed(1)} detik · ${NET.req} permintaan ke server (rata-rata ${(NET.ms/Math.max(1,NET.req)/1000).toFixed(1)} dtk, total ${(NET.bytes/1048576).toFixed(0)} MB)${selNote}`;
+    $('#btnXlsx').disabled=$('#btnPrint').disabled=$('#btnExpand').disabled=!rows.length;
+  }catch(err){ $('#status').textContent='Gagal: '+err.message; }
+  finally{ ov.hide(); $('#btnRun').disabled=false; $('#btnFilter').disabled=false; }
+}
+
+/* ---------- versi online (Vercel): tanpa penyimpanan desain/pengaturan, tanpa ekspor dari server, hanya Zahir Online ---------- */
+function setOnline(j){
+  st.online=true; if(j.perPage) PER_PAGE=j.perPage;
+  document.body.classList.add('online');
+  const fo=document.querySelector('#fOut option[value="xlsx"]'); if(fo) fo.remove();
+  $('#prefSave').disabled=true; $('#prefRowWarn').disabled=true; $('#prefNote').textContent='versi online: atur lewat env ROW_WARN di Vercel';
+  if(!$('#server').value) $('#server').value='go.zahironline.com';
+}
+let EXCELJS=null;
+function loadExcelJS(){ return EXCELJS||(EXCELJS=new Promise((ok,no)=>{ if(window.ExcelJS) return ok(window.ExcelJS); const sc=document.createElement('script'); sc.src='/vendor/exceljs.min.js'; sc.onload=()=>ok(window.ExcelJS); sc.onerror=()=>{ EXCELJS=null; no(new Error('Pustaka Excel gagal dimuat')); }; document.head.appendChild(sc); })); }
+// Excel dibuat seluruhnya di browser (penulis yang sama dengan server: xlsxw.js), lalu diunduh
+async function exportXlsxBrowser({ rows, cols, labels, numeric, kind, fileName, period, rowOf, grouped, groups, heads, dec, widths, pack }){
+  ov.show('Mengekspor ke Excel', `${rows.length.toLocaleString('id-ID')} baris`); ov.set(2, 'Menyiapkan file…');
+  try{
+    const ExcelJS=await loadExcelJS(); const wb=new ExcelJS.Workbook(); const ws=wb.addWorksheet('Laporan');
+    const ex=XLSXW.setupSheet(ws,{ kind, grouped:!!grouped, title:st.company?.name||'', sub:st.report?.title||'', period, cols, labels, numeric:[...numeric], widths, ttypes:st.ttypes||{}, groups:groups||null, heads:heads||null, dec:dec||null });
+    for(let i=0;i<rows.length;i++){ XLSXW.writeRow(ex,pack(rows[i])); if(i%5000===4999){ ov.set(2+85*i/rows.length,`Baris ${(i+1).toLocaleString('id-ID')} dari ${rows.length.toLocaleString('id-ID')}`); await sleep(0); } }
+    ov.set(92,'Menyimpan file…'); await sleep(0);
+    const buf=await wb.xlsx.writeBuffer(); const url=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    const a=document.createElement('a'); a.href=url; a.download=fileName; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),30000);
+    ov.set(100,'Selesai'); setTimeout(()=>ov.hide(),500);
+  }catch(err){ ov.hide(); alert('Ekspor gagal: '+err.message); }
+}
+/* ---------- ekspor Excel dari hasil preview: baris dikirim ringkas (array) per 20.000 ke server, ditulis streaming ---------- */
+async function exportXlsx({ rows, cols, labels, numeric, kind, fileName, period, rowOf, grouped, groups, heads, dec }){
+  const widths = { kode_akun:14, nama_akun:38, nomor:16, akun:32, tanggal:11, tipe:7, referensi:14, kontak:24, deskripsi:48, dept:12, proyek:14, faktur_pajak:22, no_invoice:20, debit:16, kredit:16, saldo:18, kurs:11, debit_usd:16, kredit_usd:16, saldo_usd:18 };
+  const hdr = { 'Content-Type':'application/json', 'x-zahir-token': st.token };
+  const call = async (url, body) => { const r = await fetch(url, { method:'POST', headers: hdr, body: JSON.stringify(body) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || 'HTTP ' + r.status); return j; };
+  const packOf = r => { const o=rowOf?rowOf(r):r; if(kind==='ledger'){ const k=rowKind(o); if(k==='title') return ['title',o.kode_akun,o.nama_akun]; if(k==='head'||k==='blank') return [k]; return [k,...cols.map(c=>o[c]??null)]; }
+    const k=o.__kind; if(k==='gtitle') return ['gtitle',o.__label,o.__lvl||0]; if(k==='ghead'||k==='blank') return [k]; if(k==='gtot') return ['gtot',o.__label,...cols.map(c=>o[c]??null)]; return [o.__k==='jh'?'bold':(o.__k==='jb'||o.__tot)?'tot':'trx',...cols.map(c=>o[c]??null)]; };
+  if (st.online) return exportXlsxBrowser({ rows, cols, labels, numeric, kind, fileName, period, rowOf, grouped, groups, heads, dec, widths, pack: packOf });
+  ov.show('Mengekspor ke Excel', `${rows.length.toLocaleString('id-ID')} baris`); ov.set(2, 'Menyiapkan file…');
+  try {
+    const { id } = await call('/export/start', { kind, grouped: !!grouped, title: st.company?.name || '', sub: st.report?.title || '', period, cols, labels, numeric: [...numeric], widths, ttypes: st.ttypes || {}, fileName, groups: groups || null, heads: heads || null, dec: dec || null });
+    const CH = 20000;
+    // format ringkas: [jenisBaris, nilai kolom...]; baris judul buku besar: ['title', kode, nama]
+    const pack = r => { const o=rowOf?rowOf(r):r; if(kind==='ledger'){ const k=rowKind(o); if(k==='title') return ['title',o.kode_akun,o.nama_akun]; if(k==='head'||k==='blank') return [k]; return [k,...cols.map(c=>o[c]??null)]; }
+    const k=o.__kind; if(k==='gtitle') return ['gtitle',o.__label,o.__lvl||0]; if(k==='ghead'||k==='blank') return [k]; if(k==='gtot') return ['gtot',o.__label,...cols.map(c=>o[c]??null)]; return [o.__k==='jh'?'bold':(o.__k==='jb'||o.__tot)?'tot':'trx',...cols.map(c=>o[c]??null)]; };
+    for (let i = 0; i < rows.length; i += CH) {
+      const part=new Array(Math.min(CH,rows.length-i)); for(let j=0;j<part.length;j++) part[j]=pack(rows[i+j]);
+      await call(`/export/${id}/rows`, { packed: part });
+      const done = Math.min(rows.length, i + CH); ov.set(2 + 90 * done / rows.length, `Baris ${done.toLocaleString('id-ID')} dari ${rows.length.toLocaleString('id-ID')}`);
+    }
+    ov.set(95, 'Menutup file…'); const fin = await call(`/export/${id}/finish`, {});
+    ov.set(100, 'Selesai'); const a = document.createElement('a'); a.href = fin.url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => ov.hide(), 500);
+  } catch (err) { ov.hide(); alert('Ekspor gagal: ' + err.message); }
+}
+/* ---------- ekspor langsung: server yang menarik data & menulis Excel (browser tidak menampung apa pun) ---------- */
+$('#btnXlsxDirect').onclick=async()=>{
+  const {F,mode,monthly,report}=reportRequest(); const useDate=!!F.date;
+  if(useDate&&(!F.date.d1||!F.date.d2)){ alert('Isi rentang tanggal'); return false; }
+  const fileName=`${(st.report.title||'laporan').replace(/[^\w]+/g,'_')}_${F.date?.d1||''}_${F.date?.d2||''}.xlsx`;
+  const tbOpt=(mode==='tb'||mode==='journal')?await tbAccounts():null;   // akun Laba Berjalan/Ditahan + format kode
+  const hdr={ 'Content-Type':'application/json', 'x-zahir-token': st.token };
+  ov.show('Ekspor langsung ke Excel', st.report.title); ov.set(1,'Memulai di server…');
+  try{
+    const r=await fetch('/export/job',{method:'POST',headers:hdr,body:JSON.stringify({ base:st.dataBase||st.server, token:st.token, client:st.client, company:st.company?.id, slug:st.slug, ttypes:st.ttypes||{}, companyName:st.company?.name||'', report, tbOpt, filters:{date:F.date,base:F.base,combos:F.combos,local:F.local}, monthly, fileName })});
+    const j=await r.json(); if(!r.ok) throw new Error(j.error||'HTTP '+r.status);
+    const id=n=>Number(n||0).toLocaleString('id-ID');
+    while(true){
+      await sleep(1000);
+      const s=await (await fetch(`/export/job/${j.id}`,{headers:hdr})).json();
+      if(s.error) throw new Error(s.error);
+      const pct=s.expect>0?Math.min(92,2+88*s.got/s.expect):2+88*(s.done/(s.total||1));
+      ov.set(pct, s.expect>0?`Baris ${id(Math.min(s.got,s.expect))} dari ${id(s.expect)} · bagian ${s.done}/${s.total}`:`${id(s.got)} baris · bagian ${s.done}/${s.total}`); ov.sub(s.stage||'');
+      if(s.url){ ov.set(100,'Selesai'); const a=document.createElement('a'); a.href=s.url; a.download=fileName; document.body.appendChild(a); a.click(); a.remove(); break; }
+    }
+    setTimeout(()=>ov.hide(),500); return true;
+  }catch(err){ ov.hide(); alert('Ekspor gagal: '+err.message); return false; }
+};
+function confirmPrint(rows){ if (rows.length > 60000 && !confirm(`Mencetak ${rows.length.toLocaleString('id-ID')} baris bisa membuat browser lambat. Untuk data sebesar ini lebih baik Ekspor Excel. Tetap cetak?`)) return false; return true; }
+
+/* ---------- tooltip isi sel: sel yang terpotong (…) menampilkan teks lengkap saat kursor diarahkan — berlaku untuk semua tabel laporan ---------- */
+(()=>{
+  const tip=document.createElement('div'); tip.id='celltip'; document.body.appendChild(tip); let cur=null;
+  // terpotong = lebar teks sebenarnya (diukur lewat Range, tidak bergantung pada scrollWidth sel tabel) melebihi ruang isi sel
+  const truncated=td=>{ if(td.scrollWidth>td.clientWidth+1) return true; try{ const cs=getComputedStyle(td); if(cs.whiteSpace!=='nowrap'&&cs.overflow!=='hidden') return false; const rg=document.createRange(); rg.selectNodeContents(td); const w=rg.getBoundingClientRect().width; const inner=td.clientWidth-parseFloat(cs.paddingLeft||0)-parseFloat(cs.paddingRight||0); return w>inner+1; }catch{ return false; } };
+  const place=e=>{ const pad=14; let x=e.clientX+pad, y=e.clientY+pad; const w=tip.offsetWidth, h=tip.offsetHeight; if(x+w>innerWidth-8) x=Math.max(8,e.clientX-w-pad); if(y+h>innerHeight-8) y=Math.max(8,e.clientY-h-pad); tip.style.left=x+'px'; tip.style.top=y+'px'; };
+  document.addEventListener('mouseover',e=>{ const td=e.target.closest&&e.target.closest('table.gl td, table.gl th'); if(!td||td===cur) return; cur=td; const txt=(td.innerText||td.textContent||'').trim();
+    if(!txt||!truncated(td)){ tip.style.display='none'; return; }
+    tip.textContent=txt; tip.style.display='block'; place(e); });
+  document.addEventListener('mousemove',e=>{ if(tip.style.display==='block') place(e); });
+  document.addEventListener('mouseout',e=>{ const td=e.target.closest&&e.target.closest('table.gl td, table.gl th'); if(td&&td===cur&&!(e.relatedTarget&&td.contains(e.relatedTarget))){ cur=null; tip.style.display='none'; } });
+  document.addEventListener('scroll',()=>{ cur=null; tip.style.display='none'; },true);
+})();
+/* ---------- tampilan virtual per blok: baris ditambah bertahap saat scroll (mulus), blok yang jauh dari layar
+   diganti ruang kosong setinggi ukuran aslinya (terukur, bukan taksiran) sehingga DOM tetap kecil berapa pun jumlah baris ---------- */
+let R={rows:[],cols:[],labels:{},rowHtml:null,ncol:1};
+const VB=400;          // baris per blok
+const VKEEP=10;        // blok yang dipertahankan di DOM (±4.000 baris)
+const VAHEAD=1800;     // px sebelum ujung blok terakhir → tambah blok berikutnya
+function vStart(){
+  const tb=$('#glBody'); R.table=tb.parentNode; tb.remove();
+  const nb=Math.ceil(R.rows.length/VB); R.nb=nb; R.h=new Array(nb); R.rh=30; R.first=0; R.last=-1; R.all=false;
+  R.top=document.createElement('tbody'); R.top.className='vpad'; R.bot=document.createElement('tbody'); R.bot.className='vpad';
+  R.top.innerHTML=`<tr><td colspan="${R.ncol}" style="height:0;padding:0;border:0"></td></tr>`; R.bot.innerHTML=R.top.innerHTML;
+  R.table.appendChild(R.top); R.table.appendChild(R.bot);
+  $('#more').classList.toggle('hide',nb<=1);
+  vAppend(0); vAppend(1); vAppend(2); vFixSpacers();
+  if(!R.bound){ window.addEventListener('scroll',vOnScroll,{passive:true}); window.addEventListener('resize',vOnScroll); R.bound=true; }
+  $('#btnExpand').onclick=()=>{ if(R.rows.length>150000&&!confirm(`Memuat ${R.rows.length.toLocaleString('id-ID')} baris sekaligus bisa membuat browser lambat. Lanjutkan?`)) return; ov.show('Memuat semua baris',''); setTimeout(()=>{ vRenderAll(); ov.hide(); },50); };
+  $('#btnPrint').onclick=()=>{ if(!confirmPrint(R.rows)) return; ov.show('Menyiapkan cetak','Memuat semua baris…'); setTimeout(()=>{ vRenderAll(); ov.hide(); setTimeout(()=>window.print(),200); },50); };
+}
+const vEst=i=>R.h[i]!=null?R.h[i]:Math.min(VB,R.rows.length-i*VB)*R.rh;
+function vBlockHtml(i){ let h=''; const e=Math.min(R.rows.length,(i+1)*VB); for(let k=i*VB;k<e;k++) h+=R.rowHtml(R.rows[k]); return h; }
+function vMake(i){ const t=document.createElement('tbody'); t.className='vb'; t.dataset.b=i; t.innerHTML=vBlockHtml(i); return t; }
+function vAppend(i){ if(i<0||i>=R.nb||i!==R.last+1) return false; R.table.insertBefore(vMake(i),R.bot); R.last=i; return true; }
+function vPrepend(i){ if(i<0||i!==R.first-1) return false; const t=vMake(i); R.table.insertBefore(t,R.top.nextSibling); R.first=i;
+  // tinggi sebenarnya vs ruang yang tadinya disediakan → koreksi posisi scroll supaya tidak melompat
+  const real=t.getBoundingClientRect().height, est=vEst(i); R.h[i]=real; if(Math.abs(real-est)>1) window.scrollBy(0,real-est); return true; }
+function vFixSpacers(){ let a=0; for(let i=0;i<R.first;i++) a+=vEst(i); let b=0; for(let i=R.last+1;i<R.nb;i++) b+=vEst(i);
+  R.top.firstElementChild.firstElementChild.style.height=Math.round(a)+'px'; R.bot.firstElementChild.firstElementChild.style.height=Math.round(b)+'px';
+  const n=R.rows.length; $('#more').textContent=R.nb>1?`Baris ${(R.first*VB+1).toLocaleString('id-ID')}–${Math.min(n,(R.last+1)*VB).toLocaleString('id-ID')} dari ${n.toLocaleString('id-ID')} dimuat — scroll untuk lanjut`:''; }
+function vTrim(viewTop,viewBot){
+  const bl=()=>R.table.querySelectorAll('tbody.vb');
+  while(R.last-R.first+1>VKEEP){ const list=bl(); const f=list[0], l=list[list.length-1];
+    const fb=f.getBoundingClientRect().bottom, lt=l.getBoundingClientRect().top;
+    if(fb<viewTop-VAHEAD){ R.h[+f.dataset.b]=f.getBoundingClientRect().height; f.remove(); R.first++; }
+    else if(lt>viewBot+VAHEAD){ R.h[+l.dataset.b]=l.getBoundingClientRect().height; l.remove(); R.last--; }
+    else break; }
+}
+function vJump(viewTop){
+  // layar berada di ruang kosong (lompatan scrollbar): tentukan blok dari tinggi kumulatif, gambar ulang di sana
+  const tableTop=R.table.getBoundingClientRect().top+window.scrollY+(R.table.tHead?R.table.tHead.getBoundingClientRect().height:0);
+  let y=viewTop-tableTop, i=0; while(i<R.nb-1&&y>vEst(i)){ y-=vEst(i); i++; }
+  R.table.querySelectorAll('tbody.vb').forEach(t=>t.remove()); R.first=i; R.last=i-1; vAppend(i); vAppend(i+1); vAppend(i+2);
+}
+function vOnScroll(){
+  if(R.all||!R.rows.length||R.raf||!R.table||!R.table.isConnected) return;
+  R.raf=requestAnimationFrame(()=>{ R.raf=null; if($('#pgRpt').classList.contains('hide')||R.all) return;
+    const viewTop=window.scrollY, viewBot=viewTop+window.innerHeight;
+    const blocks=R.table.querySelectorAll('tbody.vb'); if(!blocks.length) return;
+    const firstTop=blocks[0].getBoundingClientRect().top+viewTop, lastBot=blocks[blocks.length-1].getBoundingClientRect().bottom+viewTop;
+    if(viewTop>lastBot+VAHEAD*2 || viewBot<firstTop-VAHEAD*2){ vJump(viewTop); vFixSpacers(); return; }
+    let n=0; while(lastBot-viewBot<VAHEAD*(n+1)&&vAppend(R.last+1)&&n<2) n++;
+    n=0; while(firstTop-viewTop>-VAHEAD*(n+1)&&vPrepend(R.first-1)&&n<2) n++;
+    vTrim(viewTop,viewBot); vFixSpacers(); });
+}
+function vRenderAll(){ R.table.querySelectorAll('tbody.vb').forEach(t=>t.remove()); const frag=document.createDocumentFragment(); for(let i=0;i<R.nb;i++) frag.appendChild(vMake(i)); R.table.insertBefore(frag,R.bot); R.first=0; R.last=R.nb-1; R.all=true; vFixSpacers(); $('#more').textContent=''; }
+window.addEventListener('afterprint',()=>{ if(R.all&&R.nb>VKEEP){ R.all=false; vOnScroll(); } });
+
+const isNum=v=>v!==null&&v!==''&&typeof v!=='boolean'&&!isNaN(typeof v==='string'?v.replace(/,/g,''):v);   // termasuk angka berformat "1,234.50"
+// baris total untuk tabel umum: kolom angka dijumlahkan (kecuali yang namanya seperti kode/nomor/tanggal), kolom pertama diberi label "Total"
+// kolom yang dijumlahkan: ikuti Peran di desain (sum:true/false); selain itu otomatis = angka & bukan kode/nomor/tanggal
+function sumColsOf(cols,numeric){ const role=new Map((st.report.cols||[]).map(c=>[c.key,c.sum])); return cols.filter(c=>role.get(c)===true||(role.get(c)!==false&&numeric.has(c)&&!/(^|_)(id|kode|code|no|nomor|number|nik|npwp|tanggal|date|periode|bulan|tahun)($|_)/i.test(c))); }
+// baris berformat Jasper: hanya baris akun (tipe A) yang ikut dijumlahkan; baris judul/total/laba tidak (agar tidak dobel)
+function countsInSum(r){ for(const k in r){ const v=r[k]; if(typeof v==='string'&&v.length>6&&BARIS_RE.test(v)){ const d=decodeBaris(v); return !d||d.tipe==='A'; } } return true; }
+function tableTotalRow(rows,cols,numeric,groupBy){
+  const sumCols=sumColsOf(cols,numeric); if(!sumCols.length) return null;
+  const t={__tot:true}; for(const c of cols) t[c]=null;
+  // berformat Jasper + dikelompokkan: total = jumlah baris G (laba) tiap kelompok; selain itu totalOf menangani sendiri
+  const gb=(groupBy||[]).filter(k=>rows[0]&&k in rows[0]);
+  if(gb.length&&rows.some(r=>jasperTipe(r))){ const groups=new Map(); for(const r of rows){ if(r.__tot) continue; const k=gb.map(g=>String(r[g]??'')).join('\u0001'); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(r); }
+    for(const c of sumCols) t[c]=0; for(const list of groups.values()){ const x=totalOf(list,sumCols); for(const c of sumCols) t[c]+=x[c]; } }
+  else Object.assign(t,totalOf(rows,sumCols));
+  const first=cols.find(c=>!sumCols.includes(c)); if(first) t[first]='Total'; return t;
+}
+function renderTable(rows,d1,d2){
+  $('#pgRpt').classList.remove('wide');
+  $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=d1&&d2?`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`:'';
+  $('#rpt').classList.remove('hide');
+  if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
+  const cfg=(st.report.cols&&st.report.cols.length)?st.report.cols.filter(c=>c.show!==false):Object.keys(rows[0]).map(k=>({key:k,label:k.replace(/_/g,' ').toUpperCase()}));
+  const cols=cfg.map(c=>c.key); const labels=Object.fromEntries(cfg.map(c=>[c.key,c.label||c.key]));
+  const CODE_RE=/(^|_)(id|kode|code|no|nomor|number|nik|npwp|tanggal|date|periode|bulan|tahun)($|_)/i;
+  expandJasper(rows,cols);
+  const numeric=new Set(cols.filter(k=>!CODE_RE.test(k)&&!/\.(kode|nama|tipe|lvl|sort)$/.test(k)&&rows.slice(0,50).every(r=>r[k]==null||isNum(r[k]))&&rows.slice(0,50).some(r=>isNum(r[k]))));
+  const gb=(st.report.groupBy||[]).filter(k=>rows[0]&&k in rows[0]); const grouped=gb.length>0;
+  let vcols=cols; if(grouped&&st.report.groupHide!==false) vcols=cols.filter(c=>!gb.includes(c));
+  if(st.report.totRow&&rows.length&&!rows[rows.length-1].__tot){ const t=tableTotalRow(rows,vcols,numeric,gb); if(t) rows.push(t); }
+  // field berformat Jasper → kolom KODE + NAMA (indentasi per level, judul/total ditebalkan)
+  if(!expandJasper(rows,vcols)){ const JS=jasperSplit(rows,vcols,st.report.labKode,st.report.labAkun); vcols=JS.cols; Object.assign(labels,JS.labels); }
+  const sumCols=sumColsOf(vcols,numeric);
+  if(grouped){ rows=groupRows(rows,gb,vcols,sumCols,{subtotal:st.report.groupSub!==false,labels,counts:countsInSum}); }
+  const headHtml=`<tr>${vcols.map(c=>`<th class="${numeric.has(c)?'r':''}">${esc(labels[c])}</th>`).join('')}</tr>`;
+  const cw=c=>/\.nama$/.test(c)||c==='__label'?300:/\.kode$/.test(c)||c==='__kode'?120:/\.(tipe|lvl)$/.test(c)?70:numeric.has(c)?140:/tanggal|date/i.test(c)?110:160;
+  const totalW=vcols.reduce((a,c)=>a+cw(c),0);
+  $('#rBody').innerHTML=`<table class="gl" style="min-width:${Math.max(600,totalW)}px;width:${totalW>1150?totalW+'px':'100%'}"><colgroup>${vcols.map(c=>`<col style="width:${(cw(c)/totalW*100).toFixed(2)}%">`).join('')}</colgroup>${grouped?'':`<thead>${headHtml}</thead>`}<tbody id="glBody"></tbody></table>`;
+  const fmtCell=(c,v,r)=>{ if(r&&/\.nama$/.test(c)){ const d=r.__dec; return d?`<div class="jn" style="padding-left:${d.lvl*16}px;${d.tipe!=='A'?'font-weight:600':''}">${esc(d.label)}</div>`:`<b>${esc(v??'')}</b>`; } if(/\.(kode|tipe|lvl|sort)$/.test(c)) return esc(v??'');
+    if(c==='__label'&&r){ const d=r.__dec; return d?`<div class="jn" style="padding-left:${d.lvl*16}px;${d.tipe!=='A'?'font-weight:600':''}">${esc(d.label)}</div>`:`<b>${esc(v??'')}</b>`; } if(c==='__kode') return esc(v??'');
+    const d=typeof v==='string'&&BARIS_RE.test(v)?decodeBaris(v):null; if(d) return `<span style="padding-left:${d.lvl*14}px;${d.tipe!=='A'?'font-weight:600':''}">${esc(d.tipe==='A'?d.kode+'  '+d.label:d.label)}</span>`; if(v==null) return ''; if(numeric.has(c)&&isNum(v)){ const n=typeof v==='string'?Number(v.replace(/,/g,'')):+v; return (Number.isInteger(n)&&!String(v).includes('.'))?n.toLocaleString('en-US'):n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); } return esc(String(v).replace(/T\d\d:\d\d:\d\d.*$/,'')); };
+  const rowHtml=r=>{ const k=r.__kind;
+    if(k==='gtitle') return `<tr class="title"><td colspan="${vcols.length}" style="padding-left:${4+r.__lvl*18}px">${esc(r.__label)}</td></tr>`;
+    if(k==='ghead') return `<tr class="head">${vcols.map(c=>`<th class="${numeric.has(c)?'r':''}">${esc(labels[c])}</th>`).join('')}</tr>`;
+    if(k==='blank') return `<tr class="blank"><td colspan="${vcols.length}"></td></tr>`;
+    if(k==='gtot'){ const first=vcols.find(c=>!sumCols.includes(c)); return `<tr class="tot gtot" style="--lvl:${r.__lvl}">${vcols.map(c=>`<td class="${numeric.has(c)?'r':''}">${c===first?esc(r.__label):(c==='__label'||c==='__kode'||/\.(kode|nama|tipe|lvl|sort)$/.test(c))?'':fmtCell(c,r[c],r)}</td>`).join('')}</tr>`; }
+    return `<tr class="${r.__tot?'tot':'trx'}">${vcols.map(c=>`<td class="${numeric.has(c)?'r':''}">${fmtCell(c,r[c],r)}</td>`).join('')}</tr>`; };
+  R={rows,cols:vcols,labels,numeric,ncol:vcols.length,rowHtml,bound:R.bound};
+  vStart();
+  $('#btnXlsx').onclick=()=>exportXlsx({ rows, cols:vcols, labels, numeric, kind:'table', grouped, period:$('#rPer').textContent, fileName:`${st.report.title.replace(/[^\w]+/g,'_')}_${d1||''}_${d2||''}.xlsx` });
+}
+
+// daftar akun (sudah dimuat untuk filter) → akun Laba Berjalan / Laba Ditahan + kode akun berformat seperti di Zahir
+async function tbAccounts(){ try{ return tbAccountOpts(await optionsFor(PRESET_FILTERS.account)); }catch{ return {}; } }
+/* ---- trial balance (neraca saldo) dua mata uang: header 3 tingkat, angka format Indonesia, 0 = "-" ---- */
+const NFMT={}; const nfmt=d=>NFMT[d]||(NFMT[d]=new Intl.NumberFormat('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}));
+function renderTB(rows,d1,d2){
+  $('#pgRpt').classList.add('wide');
+  $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`; $('#rpt').classList.remove('hide');
+  if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
+  const L=tbLayout(st.report.cur||{},st.report.cols); const {cols,labels,dec,heads}=L; const numeric=new Set(L.numeric);
+  const f=(c,v)=>{ const d=dec[c]; if(v==null) return ''; if(Math.abs(v)<(d?0.005:0.5)) return '-'; return nfmt(d).format(v); };
+  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${i===0&&!h.key?'cur':''}${h.key==='nama_akun'||h.key==='kode_akun'?' l':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
+  const W={kode_akun:104,nama_akun:260}; const cw=c=>W[c]||(c.endsWith('_net')?104:94); const w=cols.reduce((a,c)=>a+cw(c),0);
+  $('#rBody').innerHTML=`<table class="gl tb" style="min-width:${w}px"><colgroup>${cols.map(c=>`<col style="width:${(cw(c)/w*100).toFixed(2)}%">`).join('')}</colgroup><thead>${thead}</thead><tbody id="glBody"></tbody></table>`;
+  const rowHtml=r=>`<tr class="${r.__tot?'tot':'trx'}">${cols.map(c=>numeric.has(c)?`<td class="r${c.startsWith('b_')&&c.endsWith('_bd')?' gs':''}">${f(c,r[c])}</td>`:`<td class="${c==='kode_akun'?'nw':''}">${esc(r[c]??'')}</td>`).join('')}</tr>`;
+  R={rows,cols,labels,numeric,ncol:cols.length,rowHtml,bound:R.bound};
+  vStart();
+  // Excel: angka dikirim apa adanya, format kolom mengikuti jumlah desimal; header 3 tingkat ikut
+  $('#btnXlsx').onclick=()=>exportXlsx({ rows, cols, labels, numeric, kind:'table', heads, dec, period:$('#rPer').textContent, fileName:`TrialBalance_${d1}_${d2}.xlsx` });
+}
+
+/* ---- jurnal per transaksi: baris kepala, baris akun, Balance; header 2 tingkat (mata uang) ---- */
+function renderJournal(rows,d1,d2){
+  $('#pgRpt').classList.add('wide');
+  $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`; $('#rpt').classList.remove('hide');
+  if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
+  const L=jrLayout(st.report.cur||{},st.report.cols); const {cols,labels,dec,heads}=L; const numeric=new Set(L.numeric);
+  const f=(c,v)=>{ if(v==null||v==='') return ''; const d=dec[c]; if(Math.abs(v)<(d?0.005:0.5)) return '-'; return nfmt(d).format(v); };
+  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${!h.key?'cur':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
+  const W={tipe:110,nomor:120,tanggal:88,kontak:150,deskripsi:230,akun:210,kode_akun:100,dept:110,proyek:100}; const cw=c=>W[c]||110; const w=cols.reduce((a,c)=>a+cw(c),0);
+  $('#rBody').innerHTML=`<table class="gl tb jr" style="min-width:${w}px"><colgroup>${cols.map(c=>`<col style="width:${(cw(c)/w*100).toFixed(2)}%">`).join('')}</colgroup><thead>${thead}</thead><tbody id="glBody"></tbody></table>`;
+  const rowHtml=r=>`<tr class="${r.__k}">${cols.map(c=>numeric.has(c)?`<td class="r">${r.__k==='jh'?'':f(c,r[c])}</td>`:`<td class="${c==='tanggal'||c==='nomor'?'nw':''}">${esc(r[c]??'')}</td>`).join('')}</tr>`;
+  R={rows,cols,labels,numeric,ncol:cols.length,rowHtml,bound:R.bound};
+  vStart();
+  $('#btnXlsx').onclick=()=>exportXlsx({ rows, cols, labels, numeric, kind:'table', heads, dec, period:$('#rPer').textContent, fileName:`Jurnal_${d1}_${d2}.xlsx` });
+}
+
+/* ---- crosstab ---- */
+function crosstabHead(res,cfg,labels,rowCols){
+  const colDefs=res.colDefs||[]; const depth=cfg.cols.length; let thead='';
+  for(let lv=0;lv<depth;lv++){
+    let h='<tr>'; if(lv===0) h+=rowCols.map(c=>`<th class="rh" rowspan="${depth}">${esc(labels[c])}</th>`).join('');
+    let i=0; while(i<colDefs.length){ const d=colDefs[i];
+      if(d.kind==='sub'){ if(lv===d.level){ const span=depth-lv; h+=`<th class="r sub" rowspan="${span}">Total ${esc(d.parts[d.parts.length-1])}</th>`; } i++; continue; }
+      if(lv===depth-1){ h+=`<th class="r">${esc(d.parts[lv]||'(kosong)')}</th>`; i++; continue; }
+      const pre=d.parts.slice(0,lv+1).join('\u0001'); let j=i, span=0; while(j<colDefs.length){ const e=colDefs[j]; if(e.kind==='sub'){ if(e.level<=lv) break; span++; j++; continue; } if(e.parts.slice(0,lv+1).join('\u0001')!==pre) break; span++; j++; }
+      h+=`<th class="grp" colspan="${span}">${esc(d.parts[lv]||'(kosong)')}</th>`; i=j; }
+    if(lv===0&&cfg.totRow!==false) h+=`<th class="r" rowspan="${depth}">TOTAL</th>`;
+    thead+=h+'</tr>'; }
+  return thead;
+}
+function renderCrosstab(rows,d1,d2){
+  $('#pgRpt').classList.remove('wide');
+  const cfg=st.report.crosstab; const enc=rows.encoded; const colDefs=rows.colDefs||[];
+  $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=d1&&d2?`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`:'';
+  $('#rpt').classList.remove('hide');
+  if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
+  const lab=k=>(st.report.cols||[]).find(c=>c.key===k)?.label||k.replace(/_/g,' ').toUpperCase();
+  const L=crosstabLayout(rows,cfg); const {rowCols,cols,numeric}=L; const labels=L.labels; if(!enc) cfg.rows.forEach(k=>labels[k]=lab(k));
+  const isInt=cfg.agg==='count';
+  const cw=rowCols.map((c,i)=>enc?(i===0?96:300):170).concat(colDefs.map(()=>126),cfg.totRow!==false?[130]:[]);
+  const w=cw.reduce((a,b)=>a+b,0);
+  $('#rBody').innerHTML=`<table class="gl xtab" style="width:${w}px;min-width:${w}px"><colgroup>${cw.map(x=>`<col style="width:${x}px">`).join('')}</colgroup><thead>${crosstabHead(rows,cfg,labels,rowCols)}</thead><tbody id="glBody"></tbody></table>`;
+  const f=v=>v==null||Math.abs(v)<0.005?'-':isInt?Number(v).toLocaleString('en-US'):(v<0?'('+fmt(-v)+')':fmt(v));
+  const numCols=cols.filter(c=>numeric.has(c));
+  const rowHtml=r=>{
+    const d=r.__dec; const kind=r.__kind==='tot'?'tot':d?({H:'xrh',A:'trx',T:'xrt',G:'xrg'}[d.tipe]):'trx';
+    const first=enc?`<td class="rh">${d&&d.tipe==='A'?esc(d.kode):''}</td><td class="rh" style="padding-left:${6+(d?d.lvl:0)*14}px">${esc(d?d.label:(r[rows.encField||cfg.rows[0]]??''))}</td>`:cfg.rows.map(k=>`<td class="rh">${esc(r[k])}</td>`).join('');
+    const nums=kind==='xrh'?numCols.map(()=>'<td class="r"></td>').join(''):numCols.map(c=>`<td class="r${c.startsWith('c:\u0003')?' sub':''}">${f(r[c])}</td>`).join('');
+    return `<tr class="${kind}">${first}${nums}</tr>`; };
+  R={rows,cols,labels,numeric,ncol:cols.length,rowHtml,bound:R.bound};
+  vStart();
+  $('#btnXlsx').onclick=()=>exportXlsx({ rows, cols, labels, numeric, kind:'table', rowOf:r=>crosstabExportRow(r,rows,cfg), period:$('#rPer').textContent, fileName:`${st.report.title.replace(/[^\w]+/g,'_')}_${d1||''}_${d2||''}.xlsx` });
+}
+
+/* ---------- render buku besar ---------- */
+const HIDE=new Set(['kode_akun','nama_akun','urutan','account_id','noklasifikasi','jurnal_id']);
+const NUM=new Set(LEDGER_NUM);
+const ORDER=ledgerColsOf(true);
+const WIDTH={tanggal:7,tipe:6.5,referensi:8,kontak:9.5,deskripsi:14,dept:6,proyek:6,faktur_pajak:9,no_invoice:8,debit:9,kredit:9,saldo:9.5,kurs:6.5,debit_usd:9,kredit_usd:9,saldo_usd:9.5};  // persen — kolom angka cukup untuk nilai ratusan juta/miliar (total)
+// header 2 tingkat (NILAI USD / NILAI IDR) bila kolom USD tampil: [{label, span, cols}] berurutan; kolom tanpa kelompok label=null
+function ledgerGroups(cols){
+  if(!cols.some(c=>VALAS_COLS.includes(c))) return null;
+  const out=[]; for(const c of cols){ const g=LEDGER_GROUP[c]||null; const last=out[out.length-1]; if(last&&g&&last.label===g) { last.span++; last.cols.push(c); } else out.push({label:g,span:1,cols:[c]}); }
+  return out;
+}
+// label kolom di bawah judul kelompok: "DEBIT (USD)" → "DEBIT"
+const subLabel=(lab,g)=>g?String(lab).replace(/\s*\((USD|IDR)\)\s*$/i,''):lab;
+function ledgerHeadHtml(){
+  const G=R.groups; const th=c=>`<th class="${NUM.has(c)?'r':''}">${esc(R.labels[c])}</th>`;
+  if(!G) return `<tr class="head">${R.cols.map(th).join('')}</tr>`;
+  const top=G.map(g=>g.label?`<th class="grp" colspan="${g.span}">${esc(g.label)}</th>`:g.cols.map(c=>`<th rowspan="2" class="${NUM.has(c)?'r':''}">${esc(R.labels[c])}</th>`).join('')).join('');
+  const bot=G.filter(g=>g.label).map(g=>g.cols.map(c=>`<th class="r sub">${esc(subLabel(R.labels[c],g.label))}</th>`).join('')).join('');
+  return `<tr class="head h2">${top}</tr><tr class="head h2b">${bot}</tr>`;
+}
+const NW=new Set(['tanggal','referensi']);
+// kolom buku besar: ikuti desain (urutan, label, kolom disembunyikan) bila ada; kalau tidak, urutan bawaan
+function ledgerColumns(report,keys,headRow){
+  const des=(report?.cols||[]).filter(c=>keys.includes(c.key));
+  if(des.length){ const cols=des.filter(c=>c.show!==false).map(c=>c.key); return { cols, labels:Object.fromEntries(des.map(c=>[c.key,c.label||LABELS[c.key]||c.key])) }; }
+  const cols=[...ORDER.filter(c=>keys.includes(c)),...keys.filter(c=>!ORDER.includes(c))];
+  return { cols, labels:Object.fromEntries(cols.map(c=>[c,(headRow&&headRow[c])||LABELS[c]||c.replace(/_/g,' ').toUpperCase()])) };
+}
+function cell(r,c,k){ let v=r[c]; if(c==='tipe'&&k==='trx') v=st.ttypes[v]||v; return esc(v); }
+function ledgerRowHtml(r){
+  const k=rowKind(r), n=R.cols.length;
+  if(k==='title') return `<tr class="title"><td colspan="${n}">${esc(r.kode_akun)} &nbsp;·&nbsp; ${esc(r.nama_akun)}</td></tr>`;
+  if(k==='head') return ledgerHeadHtml();
+  if(k==='blank') return `<tr class="blank"><td colspan="${n}"></td></tr>`;
+  return `<tr class="${k}">${R.cols.map(c=>`<td class="${NUM.has(c)?'r':(NW.has(c)?'nw':'')}">${cell(r,c,k)}</td>`).join('')}</tr>`;
+}
+function render(rows,d1,d2){
+  $('#rCo').textContent=st.company?.name||''; $('#rPer').textContent=`Periode : ${fmtDate(d1)} s/d ${fmtDate(d2)}`;
+  $('#rpt').classList.remove('hide');
+  if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
+  const keys=Object.keys(rows[0]).filter(k=>!HIDE.has(k));
+  const headRow=rows.find(r=>rowKind(r)==='head')||{};
+  const L=ledgerColumns(st.report,keys,headRow); const cols=L.cols, labels=L.labels;
+  const total=cols.reduce((a,c)=>a+(WIDTH[c]||6),0);
+  const groups=ledgerGroups(cols); $('#pgRpt').classList.toggle('wide',!!groups);
+  // kolom USD menambah 4 kolom angka → tabel dilebarkan (scroll horizontal) agar angka tidak terpotong
+  $('#rBody').innerHTML=`<table class="gl${groups?' valas':''}"${groups?` style="min-width:${Math.round(total*12.5)}px"`:''}><colgroup>${cols.map(c=>`<col style="width:${((WIDTH[c]||6)/total*100).toFixed(2)}%">`).join('')}</colgroup><tbody id="glBody"></tbody></table>`;
+  R={rows,cols,labels,groups,ncol:cols.length,rowHtml:ledgerRowHtml,bound:R.bound};
+  vStart();
+  const xg=groups?groups.map(g=>({label:g.label,span:g.span})):null;
+  $('#btnXlsx').onclick=()=>exportXlsx({ rows, cols, labels:groups?Object.fromEntries(cols.map(c=>[c,subLabel(labels[c],LEDGER_GROUP[c])])):labels, numeric:NUM, kind:'ledger', groups:xg, period:$('#rPer').textContent, fileName:`BukuBesar${groups?'Valas':''}_${d1}_${d2}.xlsx` });
+}
+
+/* ---------- resume session ---------- */
+(function resume(){
+  const s=S.get('sess'); if(!s?.token) return;
+  st.server=s.server; st.token=s.token; st.me=s.me; st.client=s.client||'';
+  $('#login').classList.add('hide'); $('#app').classList.remove('hide');
+  const nm=`${st.me?.first_name||''} ${st.me?.last_name||''}`.trim(); $('#whoami').innerHTML=`<b>${esc(nm)}</b> · ${esc(st.me?.email||'')}`; $('#sName').textContent=nm; $('#sEmail').textContent=st.me?.email||'';
+  if(s.dataBase&&s.company){ st.dataBase=s.dataBase; st.slug=s.slug||''; st.company=s.company; ov.show('Membuka perusahaan',s.company.name); useDatabase(); }
+  else { showPage('pgCo'); loadCompanies(); }
+})();
+</script>
+</body>
+</html>

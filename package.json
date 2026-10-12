@@ -1,0 +1,74 @@
+{
+  "name": "zahir-insight",
+  "version": "2.36.0",
+  "description": "Buku Besar viewer (Faktur Pajak & Invoice) - ambil data dari Zahir custom_queries API, render sendiri",
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "build:win": "node scripts/build.js win",
+    "build:linux": "node scripts/build.js linux",
+    "desktop": "electron .",
+    "build:desktop": "node scripts/build-desktop.js nsis",
+    "build:desktop:portable": "node scripts/build-desktop.js portable"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2"
+  },
+  "bin": "server.js",
+  "devDependencies": {
+    "@yao-pkg/pkg": "^5.16.1",
+    "electron": "^33.4.11",
+    "electron-builder": "^24.13.3",
+    "resedit": "^2.0.3"
+  },
+  "build": {
+    "appId": "com.zahir.insight",
+    "productName": "Zahir Insight",
+    "copyright": "Zahir Insight",
+    "directories": {
+      "output": "dist/desktop",
+      "buildResources": "build"
+    },
+    "files": [
+      "desktop/**",
+      "server.js",
+      "public/**",
+      "custom_queries/*.json",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "ZahirInsight-Desktop-Setup-${version}.${ext}",
+      "legalTrademarks": "Zahir Insight"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Zahir Insight",
+      "artifactName": "ZahirInsight-Desktop-Setup-${version}.${ext}",
+      "language": "1057",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "artifactName": "ZahirInsight-Desktop-Portable-${version}.${ext}"
+    },
+    "electronLanguages": [
+      "id",
+      "en-US"
+    ],
+    "asarUnpack": [
+      "desktop/icons/**"
+    ]
+  }
+}

@@ -1,0 +1,62 @@
+# Zahir Insight di Kubernetes — satu instance untuk banyak customer (desain laporan dipisah per database Zahir)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: { name: zahir-insight-data, namespace: zahir }
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: 1Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: zahir-insight, namespace: zahir }
+spec:
+  replicas: 1            # >1 perlu storage ReadWriteMany (data/ dipakai bersama) — mulai dari 1
+  selector: { matchLabels: { app: zahir-insight } }
+  template:
+    metadata: { labels: { app: zahir-insight } }
+    spec:
+      containers:
+        - name: app
+          image: registry.example.com/zahir/zahir-insight:2.30.0   # ganti dengan registry Anda
+          ports: [{ containerPort: 3300 }]
+          env:
+            - { name: PORT, value: "3300" }
+            - { name: REPORT_SCOPE, value: "company" }   # "global" bila hanya untuk satu customer
+            - { name: DATA_ROOT, value: "/data" }
+            # - { name: ANTHROPIC_API_KEY, valueFrom: { secretKeyRef: { name: zahir-insight, key: anthropic } } }
+          volumeMounts: [{ name: data, mountPath: /data }]
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 1Gi }      # ekspor langsung data besar memakai memori; naikkan bila perlu
+          readinessProbe: { httpGet: { path: /version, port: 3300 }, initialDelaySeconds: 3 }
+          livenessProbe: { httpGet: { path: /version, port: 3300 }, initialDelaySeconds: 10, periodSeconds: 30 }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: zahir-insight-data }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: zahir-insight, namespace: zahir }
+spec:
+  selector: { app: zahir-insight }
+  ports: [{ port: 80, targetPort: 3300 }]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: zahir-insight
+  namespace: zahir
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"   # ekspor langsung bisa lama
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  tls: [{ hosts: [insight.zahironline.com], secretName: zahir-insight-tls }]
+  rules:
+    - host: insight.zahironline.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend: { service: { name: zahir-insight, port: { number: 80 } } }
