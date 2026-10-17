@@ -104,12 +104,17 @@
           const row = { tanggal: V ? dateZ(r.tanggal) : String(r.tanggal).slice(0, 10), tipe: r.tipe, referensi: r.referensi, kontak: V && !r.kontak ? '-' : r.kontak, deskripsi: r.deskripsi, dept: r.dept, proyek: r.proyek, faktur_pajak: r.faktur_pajak, no_invoice: r.no_invoice, debit: F(d), kredit: F(kk), saldo: F(run) };
           if (V) {
             const da = num(r.debit_a), ka = num(r.kredit_a); totDA += da; totKA += ka; runA += this._sgn(g, da, ka);
-            // transaksi bermata uang USD: blok nilai asli dikosongkan; saldo berjalan tetap dihitung agar baris berikutnya benar
-            if (usdId && String(r.mata_uang_id ?? '').toLowerCase() === usdId) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; }
-            else { row.debit_usd = F(da); row.kredit_usd = F(ka); row.saldo_usd = F(runA); }
-            // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs (dibulatkan 2 desimal)
-            const cc = curOf(r.mata_uang_id);
-            if (cc && !(row.debit_usd === null)) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
+            // transaksi bermata uang USD: blok nilai asli dikosongkan; saldo berjalan tetap dihitung agar baris berikutnya benar.
+            // Bila query lama (tanpa mata_uang_id), transaksi USD dikenali dari nilai asli = nilai dasar (kurs 1), yang tidak mungkin terjadi pada transaksi IDR.
+            const hasId = r.mata_uang_id != null && r.mata_uang_id !== '';
+            const isUsd = hasId ? !!usdId && String(r.mata_uang_id).toLowerCase() === usdId : (d !== 0 || kk !== 0) && Math.abs(da - d) < 0.005 && Math.abs(ka - kk) < 0.005;
+            if (isUsd) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; const amt = d !== 0 ? d : kk; if (amt) row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(USD ${F(amt)} X 1)`; }
+            else {
+              row.debit_usd = F(da); row.kredit_usd = F(ka); row.saldo_usd = F(runA);
+              // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs
+              const cc = curOf(r.mata_uang_id) || (hasId ? '' : 'IDR');
+              if (cc) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
+            }
           }
           yield (base(g, row));
         }
