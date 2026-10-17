@@ -80,7 +80,7 @@ ditambah kolom **KURS** dan header dua tingkat **NILAI USD** (Debit / Kredit / S
   Keduanya otomatis dibuat di database saat database dibuka (atau lewat tombol *Periksa custom query bawaan*).
 - Saldo awal & saldo berjalan USD dihitung dengan aturan yang sama dengan IDR (sisi debit/kredit per klasifikasi akun).
 - KURS = nilai IDR ÷ nilai USD pada baris yang sama.
-- Baris *Saldo Akhir* mengisi kolom SALDO USD dan SALDO IDR; baris *Total* berisi jumlah debit/kredit kedua mata uang.
+- Baris *Total* berisi jumlah debit/kredit kedua blok; baris *Saldo Akhir* hanya mengisi blok mata uang dasar (blok nilai asli kosong, seperti footer JRXML).
 - Ekspor Excel (dari layar maupun *Ekspor langsung*) ikut memakai header dua tingkat.
 - Laporan buku besar biasa (`bb`) tidak berubah.
 
@@ -89,6 +89,8 @@ ditambah kolom **KURS** dan header dua tingkat **NILAI USD** (Debit / Kredit / S
 Di **Buku Besar Valas**, baris transaksi yang `currency_id`-nya = ID mata uang USD (default `fdbc942a-81dc-42f3-8f77-0774358dc084`)
 mengosongkan KURS dan DEBIT/KREDIT/SALDO nilai asli (`debit_a`/`kredit_a`) — sama dengan aturan di JRXML *General Ledger - Advance*.
 Saldo berjalan tetap dihitung, jadi baris berikutnya tidak bergeser.
+Untuk akun yang mata uangnya USD (dibaca dari `/api/v2/accounts`, `currency.code`), baris *Saldo Awal* dan *Total* di blok nilai asli juga kosong (`is_usd_account` di JRXML).
+Bila API akun tidak mengirim mata uang akun, aturan per akun ini tidak aktif.
 
 - ID bisa diganti lewat env `USD_CURRENCY_ID` (server → browser lewat `/version`).
 - Butuh custom query `bb_trx_valas` versi terbaru (membawa kolom `mata_uang_id`). Di database yang sudah punya versi lama,

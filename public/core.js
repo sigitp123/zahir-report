@@ -60,7 +60,7 @@
   // Susun buku besar dari transaksi mentah (bb_trx) + saldo awal (bb_saldo_awal).
   // Baris ditambahkan satu per satu begitu tiba dari server, jadi tidak ada salinan data mentah yang menumpuk.
   class LedgerBuilder {
-    constructor() { this.acc = new Map(); this.n = 0; this.valas = false; }
+    constructor() { this.acc = new Map(); this.n = 0; this.valas = false; this.accCur = {}; }   // accCur: kode akun (tanpa tanda baca, huruf kecil) → kode mata uang akun
     _get(r) { let g = this.acc.get(r.kode_akun); if (!g) { g = { kode: r.kode_akun, nama: r.nama_akun, kls: String(r.noklasifikasi ?? ''), sa: 0, saA: 0, trx: [] }; this.acc.set(r.kode_akun, g); } if (!this.valas && ('debit_a' in r || 'kredit_a' in r)) this.valas = true; return g; }
     _sgn(g, d, k) { return KREDIT_SIDE.has(g.kls) ? (num(k) - num(d)) : (num(d) - num(k)); }
     // saldo awal dari dua potongan yang TIDAK tumpang tindih: sebelum tahun berjalan (ytd=false) + sejak 1 Januari s/d sehari sebelum periode (ytd=true).
@@ -78,6 +78,8 @@
     // generator: baris dihasilkan satu per satu (server bisa menyela untuk melayani permintaan lain)
     *gen(d1) {
       const prevStr = prevDay(d1); const V = this.valas; const usdId = String(LedgerBuilder.usdCurrencyId || '').toLowerCase();
+      // akun bermata uang USD (dari daftar akun API): saldo awal & total nilai asli tidak ditampilkan (is_usd_account di JRXML)
+      const usdAcc = g => this.accCur[String(g.kode ?? '').replace(/[^0-9a-z]/gi, '').toLowerCase()] === 'USD';
       const keys = ledgerColsOf(V); const empty = { kode_akun: null, nama_akun: null }; for (const c of keys) empty[c] = null;
       const head = Object.fromEntries(keys.map(c => [c, LABELS[c]]));
       const base = (g, extra) => Object.assign({}, empty, { kode_akun: g.kode, nama_akun: g.nama }, extra);
@@ -90,7 +92,7 @@
         g.trx.sort((a, b) => cmp(a.tanggal, b.tanggal) || cmp(a.referensi, b.referensi) || cmp(a.jurnal_id, b.jurnal_id));
         yield (base(g, { tipe: g.kode, referensi: g.nama }));
         yield (base(g, head));
-        yield (base(g, Object.assign({ tanggal: prevStr, tipe: 'Saldo Awal', debit: '0', kredit: '0', saldo: fmt(g.sa) }, V ? { debit_usd: '0', kredit_usd: '0', saldo_usd: fmt(g.saA) } : {})));
+        yield (base(g, Object.assign({ tanggal: prevStr, tipe: 'Saldo Awal', debit: '0', kredit: '0', saldo: fmt(g.sa) }, V ? { saldo_usd: usdAcc(g) ? null : fmt(g.saA) } : {})));
         let run = g.sa, totD = 0, totK = 0, runA = g.saA, totDA = 0, totKA = 0;
         for (const r of g.trx) {
           const d = num(r.debit), kk = num(r.kredit); totD += d; totK += kk; run += this._sgn(g, d, kk);
@@ -103,9 +105,9 @@
           }
           yield (base(g, row));
         }
-        // baris total: saldo awal & akhir IDR di kolom deskripsi (seperti biasa); buku besar valas juga mengisi kolom SALDO di baris Saldo Akhir
-        yield (base(g, Object.assign({ tipe: 'Saldo Awal', deskripsi: fmt(g.sa), proyek: 'Total :', debit: fmt(totD), kredit: fmt(totK) }, V ? { debit_usd: fmt(totDA), kredit_usd: fmt(totKA) } : {})));
-        yield (base(g, Object.assign({ tipe: 'Saldo Akhir', deskripsi: fmt(run), proyek: 'Mutasi :', debit: fmt(run - g.sa) }, V ? { debit_usd: fmt(runA - g.saA), saldo_usd: fmt(runA), saldo: fmt(run) } : {})));
+        // baris total: saldo awal & akhir (mata uang dasar) di kolom deskripsi; blok nilai asli hanya berisi total debit/kredit (seperti footer JRXML), kosong untuk akun USD
+        yield (base(g, Object.assign({ tipe: 'Saldo Awal', deskripsi: fmt(g.sa), proyek: 'Total :', debit: fmt(totD), kredit: fmt(totK) }, V && !usdAcc(g) ? { debit_usd: fmt(totDA), kredit_usd: fmt(totKA) } : {})));
+        yield (base(g, Object.assign({ tipe: 'Saldo Akhir', deskripsi: fmt(run), proyek: 'Mutasi :', debit: fmt(run - g.sa) }, V ? { saldo: fmt(run) } : {})));
         yield (base(g, {}));
         g.trx = null; this.acc.delete(k);   // lepaskan data mentah akun ini
       }
@@ -250,8 +252,8 @@
     const list = (accounts || []).filter(a => a && a.code != null);
     const find = re => { const a = list.find(x => re.test(String(x.name || ''))); return a ? { kode: norm(a.code), nama: a.name, code: a.code } : null; };
     const cy = find(/laba\s*(tahun\s*)?berjalan|current\s*(year\s*)?earning/i), re = find(/laba\s*ditahan|retained\s*earning/i);
-    const map = {}; for (const a of list) map[norm(a.code)] = String(a.code);
-    return { cy, re, codes: map };
+    const map = {}, cur = {}; for (const a of list) { map[norm(a.code)] = String(a.code); if (a.cur) cur[norm(a.code)] = String(a.cur).toUpperCase(); }
+    return { cy, re, codes: map, cur };
   }
   // opsi rows() dari hasil tbAccountOpts; kode akun dari query dicocokkan tanpa tanda baca
   function tbRowOpts(o) {

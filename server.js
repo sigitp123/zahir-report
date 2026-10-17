@@ -525,7 +525,7 @@ async function runJob(job, b) {
     // saldo awal: potongan tanggal tidak tumpang tindih (sebelum tahun berjalan + tahun berjalan), tanpa filter kontak
     const SA = F.combos.flatMap(c => { const bb = { ...F.base, ...c }; delete bb.contact_id; return core.LedgerBuilder.saChunks(d1, bb); });
     job.expect = await plan(cqTrx); job.total = SA.length + jobs.length;
-    const B = new core.LedgerBuilder();
+    const B = new core.LedgerBuilder(); B.accCur = (b.tbOpt && b.tbOpt.cur) || {};
     for (const s of SA) { job.stage = 'Mengambil saldo awal…'; await fetchAll(cqSaldo, s.p, r => B.addSa(r, s.ytd)); job.done++; }
     for (const p of jobs) { job.stage = `Mengambil transaksi bagian ${job.done + 1}/${job.total}…`; await fetchAll(cqTrx, p, r => B.addTrx(r), true); job.done++; }
     job.stage = 'Menyusun buku besar & menulis Excel…';

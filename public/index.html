@@ -1110,7 +1110,7 @@ function LOOK_CLEAR(){ for(const k of Object.keys(LOOK)) delete LOOK[k]; }
 async function optionsFor(f){
   const src=f.source==='endpoint'?{ep:f.endpoint,code:['code','kode'],name:['name','nama','title','description']}:SOURCES[f.source]; if(!src||!src.ep) return [];
   const k=src.ep; if(LOOK[k]) return LOOK[k];
-  try{ LOOK[k]=listOf(await zget(src.ep)).filter(isActive).map(x=>({id:x.id??x.value??x.code, code:String(pickv(x,src.code)), name:String(pickv(x,src.name))})); }catch{ LOOK[k]=[]; }
+  try{ LOOK[k]=listOf(await zget(src.ep)).filter(isActive).map(x=>({id:x.id??x.value??x.code, code:String(pickv(x,src.code)), name:String(pickv(x,src.name)), cur:String(x.currency?.code??x.currency__code??x.currency_code??'')})); }catch{ LOOK[k]=[]; }
   return LOOK[k];
 }
 const FULL={};  // daftar penuh per sumber (dimuat sekali saat server tidak menyaring)
@@ -1313,7 +1313,7 @@ async function runReport({force=false}={}){
       // dua potongan tanggal yang tidak tumpang tindih (sebelum tahun berjalan + tahun berjalan), potongan tahun berjalan dilewati bila periode mulai 1 Januari
       const SA=F.combos.flatMap(c=>{ const b={...F.base,...c}; delete b.contact_id; return LedgerBuilder.saChunks(d1,b); });
       const {jobs:TX,expect}=await planJobs(cqTrx); T.expect=expect; T.total=SA.length+TX.length;
-      const B=new LedgerBuilder();
+      const B=new LedgerBuilder(); B.accCur=(await tbAccounts()).cur||{};
       const all=[...SA.map(s=>({p:s.p,cq:cqSaldo,sink:r=>B.addSa(r,s.ytd),quiet:true})),...TX.map(p=>({p,cq:cqTrx,sink:r=>B.addTrx(r)}))];
       await parallel(all,CONCURRENCY,async j=>{ await fetchChunk(j.p,j.quiet?()=>{}:n=>T.rows(n),j.cq,null,j.sink); T.done(); });
       ov.sub('Menyusun buku besar…'); await sleep(20);
@@ -1412,7 +1412,7 @@ $('#btnXlsxDirect').onclick=async()=>{
   const {F,mode,monthly,report}=reportRequest(); const useDate=!!F.date;
   if(useDate&&(!F.date.d1||!F.date.d2)){ alert('Isi rentang tanggal'); return false; }
   const fileName=`${(st.report.title||'laporan').replace(/[^\w]+/g,'_')}_${F.date?.d1||''}_${F.date?.d2||''}.xlsx`;
-  const tbOpt=(mode==='tb'||mode==='journal')?await tbAccounts():null;   // akun Laba Berjalan/Ditahan + format kode
+  const tbOpt=(mode!=='table'&&mode!=='crosstab')?await tbAccounts():null;   // akun Laba Berjalan/Ditahan + format kode
   const hdr={ 'Content-Type':'application/json', 'x-zahir-token': st.token };
   ov.show('Ekspor langsung ke Excel', st.report.title); ov.set(1,'Memulai di server…');
   try{
