@@ -239,6 +239,8 @@ table.gl.valas tr.h2 th.r{text-align:right}
 table.gl.valas tr.h2 th.grp{background:var(--brand2);letter-spacing:.04em;font-weight:600;border-bottom:1px solid rgba(255,255,255,.35)}
 table.gl.valas tr.h2b th{border-right:1px solid rgba(255,255,255,.35)}
 table.gl.valas td.r{overflow:hidden;text-overflow:ellipsis}
+table.gl.valas td{white-space:pre-line}
+table.gl.valas td.r{white-space:nowrap}
 /* trial balance: header 3 tingkat (tidak sticky agar baris header tidak saling menimpa) */
 table.gl.tb thead th{position:static;text-align:center;vertical-align:middle;border-right:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35);white-space:normal}
 table.gl.tb thead th.cur{background:var(--brand2);letter-spacing:.04em;font-weight:600}
@@ -1313,7 +1315,7 @@ async function runReport({force=false}={}){
       // dua potongan tanggal yang tidak tumpang tindih (sebelum tahun berjalan + tahun berjalan), potongan tahun berjalan dilewati bila periode mulai 1 Januari
       const SA=F.combos.flatMap(c=>{ const b={...F.base,...c}; delete b.contact_id; return LedgerBuilder.saChunks(d1,b); });
       const {jobs:TX,expect}=await planJobs(cqTrx); T.expect=expect; T.total=SA.length+TX.length;
-      const B=new LedgerBuilder(); B.accCur=await accountCurMap();
+      const B=new LedgerBuilder(); B.accCur=await accountCurMap(); B.curCode=await currencyMap();
       const all=[...SA.map(s=>({p:s.p,cq:cqSaldo,sink:r=>B.addSa(r,s.ytd),quiet:true})),...TX.map(p=>({p,cq:cqTrx,sink:r=>B.addTrx(r)}))];
       await parallel(all,CONCURRENCY,async j=>{ await fetchChunk(j.p,j.quiet?()=>{}:n=>T.rows(n),j.cq,null,j.sink); T.done(); });
       ov.sub('Menyusun buku besar…'); await sleep(20);
@@ -1569,7 +1571,13 @@ async function accountCurMap(){
   }
   LOOK['acccur']=m; return m;
 }
-async function tbAccounts(){ try{ const o=tbAccountOpts(await optionsFor(PRESET_FILTERS.account)); o.cur=Object.assign({},o.cur,await accountCurMap()); return o; }catch{ return {}; } }
+async function currencyMap(){   // id mata uang (huruf kecil) → kode, untuk baris kedua deskripsi "(IDR 975,000,000 X 0)"
+  if(LOOK['curcode']) return LOOK['curcode'];
+  const m={}, usd=String(LedgerBuilder.usdCurrencyId||'').toLowerCase(); if(usd) m[usd]='USD';
+  try{ for(const x of listOf(await zget('/api/v2/currencies?per_page=500'))){ const id=String(pickv(x,['id'])||'').toLowerCase(), code=pickv(x,['code','symbol']); if(id&&code&&!m[id]) m[id]=String(code).toUpperCase(); } }catch{}
+  LOOK['curcode']=m; return m;
+}
+async function tbAccounts(){ try{ const o=tbAccountOpts(await optionsFor(PRESET_FILTERS.account)); o.cur=Object.assign({},o.cur,await accountCurMap()); o.curCode=await currencyMap(); return o; }catch{ return {}; } }
 /* ---- trial balance (neraca saldo) dua mata uang: header 3 tingkat, angka format Indonesia, 0 = "-" ---- */
 const NFMT={}; const nfmt=d=>NFMT[d]||(NFMT[d]=new Intl.NumberFormat('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}));
 function renderTB(rows,d1,d2){
@@ -1646,7 +1654,7 @@ function renderCrosstab(rows,d1,d2){
 const HIDE=new Set(['kode_akun','nama_akun','urutan','account_id','noklasifikasi','jurnal_id']);
 const NUM=new Set(LEDGER_NUM);
 const ORDER=ledgerColsOf(true);
-const WIDTH={tanggal:7,tipe:6.5,referensi:8,kontak:9.5,deskripsi:14,dept:6,proyek:6,faktur_pajak:9,no_invoice:8,debit:9,kredit:9,saldo:9.5,kurs:6.5,debit_usd:9,kredit_usd:9,saldo_usd:9.5};  // persen — kolom angka cukup untuk nilai ratusan juta/miliar (total)
+const WIDTH={tanggal:7,tipe:6.5,referensi:8,kontak:9.5,deskripsi:14,dept:6,proyek:6,faktur_pajak:9,no_invoice:8,debit:9,kredit:9,saldo:9.5,debit_usd:9,kredit_usd:9,saldo_usd:9.5};  // persen — kolom angka cukup untuk nilai ratusan juta/miliar (total)
 // header 2 tingkat (NILAI USD / NILAI IDR) bila kolom USD tampil: [{label, span, cols}] berurutan; kolom tanpa kelompok label=null
 function ledgerGroups(cols){
   if(!cols.some(c=>VALAS_COLS.includes(c))) return null;
@@ -1673,7 +1681,7 @@ function ledgerColumns(report,keys,headRow){
 function cell(r,c,k){ let v=r[c]; if(c==='tipe'&&k==='trx') v=st.ttypes[v]||v; return esc(v); }
 function ledgerRowHtml(r){
   const k=rowKind(r), n=R.cols.length;
-  if(k==='title') return `<tr class="title"><td colspan="${n}">${esc(r.kode_akun)} &nbsp;·&nbsp; ${esc(r.nama_akun)}</td></tr>`;
+  if(k==='title') return `<tr class="title"><td colspan="${n}">${esc(r.kode_akun)} ${R.groups?'-':'&nbsp;·&nbsp;'} ${esc(r.nama_akun)}</td></tr>`;
   if(k==='head') return ledgerHeadHtml();
   if(k==='blank') return `<tr class="blank"><td colspan="${n}"></td></tr>`;
   return `<tr class="${k}">${R.cols.map(c=>`<td class="${NUM.has(c)?'r':(NW.has(c)?'nw':'')}">${cell(r,c,k)}</td>`).join('')}</tr>`;

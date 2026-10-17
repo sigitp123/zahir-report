@@ -37,30 +37,35 @@
   /* ---------- buku besar ---------- */
   const KREDIT_SIDE = new Set(['2', '3', '4', '8']);
   const LABELS = { tanggal: 'TANGGAL', tipe: 'TIPE', referensi: 'REFERENSI', kontak: 'KONTAK', deskripsi: 'DESKRIPSI', dept: 'DEPT', proyek: 'PROYEK', faktur_pajak: 'NO FAKTUR PAJAK', no_invoice: 'NO INVOICE', debit: 'DEBIT', kredit: 'KREDIT', saldo: 'SALDO',
-    kurs: 'KURS', debit_usd: 'DEBIT (USD)', kredit_usd: 'KREDIT (USD)', saldo_usd: 'SALDO (USD)' };
+    debit_usd: 'DEBIT_A', kredit_usd: 'KREDIT_A', saldo_usd: 'SALDO' };
   // kolom buku besar biasa (IDR)
   const COLS = ['tanggal', 'tipe', 'referensi', 'kontak', 'deskripsi', 'dept', 'proyek', 'faktur_pajak', 'no_invoice', 'debit', 'kredit', 'saldo'];
-  // buku besar valas: nilai asli transaksi (jurnalvc.debit_a / kredit_a) + kurs, diletakkan sebelum kolom IDR
-  const VALAS_COLS = ['kurs', 'debit_usd', 'kredit_usd', 'saldo_usd'];
-  // ID mata uang USD (currency_id transaksi). Transaksi bermata uang ini TIDAK menampilkan blok nilai asli (KURS, DEBIT/KREDIT/SALDO bertanda USD) —
+  // buku besar valas (tampilan sama dengan General Ledger - Advance di Zahir Online): blok "USD" = mata uang dasar (debit/kredit/saldo),
+  // lalu blok "IDR" = nilai asli transaksi (jurnalvc.debit_a / kredit_a → DEBIT_A / KREDIT_A / SALDO). Kunci kolom *_usd dipertahankan agar desain lama tetap terbaca.
+  const VALAS_COLS = ['debit_usd', 'kredit_usd', 'saldo_usd'];
+  // ID mata uang USD (currency_id transaksi). Transaksi bermata uang ini TIDAK menampilkan blok nilai asli (DEBIT_A/KREDIT_A/SALDO) —
   // sama dengan aturan di JRXML General Ledger Advance. Bisa diganti: env USD_CURRENCY_ID (server) → dikirim ke browser lewat /version.
   const DEFAULT_USD_CURRENCY_ID = 'fdbc942a-81dc-42f3-8f77-0774358dc084';
-  const ledgerColsOf = valas => valas ? [...COLS.slice(0, 9), ...VALAS_COLS, ...COLS.slice(9)] : COLS.slice();
+  const ledgerColsOf = valas => valas ? [...COLS, ...VALAS_COLS] : COLS.slice();
   const LEDGER_NUM = ['debit', 'kredit', 'saldo', ...VALAS_COLS];
   // judul kelompok header 2 tingkat (kolom tanpa kelompok memakai rowspan)
-  const LEDGER_GROUP = { debit_usd: 'NILAI USD', kredit_usd: 'NILAI USD', saldo_usd: 'NILAI USD', debit: 'NILAI IDR', kredit: 'NILAI IDR', saldo: 'NILAI IDR' };
+  const LEDGER_GROUP = { debit: 'USD', kredit: 'USD', saldo: 'USD', debit_usd: 'IDR', kredit_usd: 'IDR', saldo_usd: 'IDR' };
+  // angka tampilan Zahir: desimal maksimal 2, nol di belakang koma dibuang (975,000,000 / 62,630.72 / 0)
+  const fmtZ = n => fmt(n).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dateZ = s => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s ?? '')); return m ? `${MON[+m[2] - 1]} ${+m[3]}, ${m[1]}` : String(s ?? ''); };
   function rowKind(r) {
     if (r.tanggal == null && r.kode_akun && r.tipe === r.kode_akun) return 'title';
     if (r.tanggal === 'TANGGAL') return 'head';
     if (r.proyek === 'Total :' || r.proyek === 'Mutasi :') return 'tot';
-    if (r.tipe === 'Saldo Awal' && r.tanggal) return 'sa';
+    if ((r.tipe === 'Saldo Awal' || r.tanggal === 'Saldo Awal') && r.tanggal) return 'sa';
     if (r.tanggal == null && r.tipe == null && r.referensi == null) return 'blank';
     return 'trx';
   }
   // Susun buku besar dari transaksi mentah (bb_trx) + saldo awal (bb_saldo_awal).
   // Baris ditambahkan satu per satu begitu tiba dari server, jadi tidak ada salinan data mentah yang menumpuk.
   class LedgerBuilder {
-    constructor() { this.acc = new Map(); this.n = 0; this.valas = false; this.accCur = {}; }   // accCur: kode akun (tanpa tanda baca, huruf kecil) → kode mata uang akun
+    constructor() { this.acc = new Map(); this.n = 0; this.valas = false; this.accCur = {}; this.curCode = {}; }   // accCur: kode akun (tanpa tanda baca, huruf kecil) → kode mata uang akun; curCode: id mata uang (huruf kecil) → kode
     _get(r) { let g = this.acc.get(r.kode_akun); if (!g) { g = { kode: r.kode_akun, nama: r.nama_akun, kls: String(r.noklasifikasi ?? ''), sa: 0, saA: 0, trx: [] }; this.acc.set(r.kode_akun, g); } if (!this.valas && ('debit_a' in r || 'kredit_a' in r)) this.valas = true; return g; }
     _sgn(g, d, k) { return KREDIT_SIDE.has(g.kls) ? (num(k) - num(d)) : (num(d) - num(k)); }
     // saldo awal dari dua potongan yang TIDAK tumpang tindih: sebelum tahun berjalan (ytd=false) + sejak 1 Januari s/d sehari sebelum periode (ytd=true).
@@ -83,31 +88,34 @@
       const keys = ledgerColsOf(V); const empty = { kode_akun: null, nama_akun: null }; for (const c of keys) empty[c] = null;
       const head = Object.fromEntries(keys.map(c => [c, LABELS[c]]));
       const base = (g, extra) => Object.assign({}, empty, { kode_akun: g.kode, nama_akun: g.nama }, extra);
-      // kurs = nilai besar / nilai kecil pada baris yang sama (Rupiah per USD), berlaku baik mata uang dasar IDR maupun USD;
-      // kosong bila salah satunya 0 (mis. jurnal revaluasi) atau keduanya sama (akun dalam mata uang dasar)
-      const kurs = (d, k, da, ka) => { const x = Math.abs(d) + Math.abs(k), y = Math.abs(da) + Math.abs(ka); if (x < 0.005 || y < 0.005 || Math.abs(x - y) < 0.005) return null; return fmt(Math.max(x, y) / Math.min(x, y)); };
+      const F = V ? fmtZ : fmt;   // buku besar valas memakai format angka Zahir
+      const curOf = id => { id = String(id ?? '').toLowerCase(); return !id ? '' : id === usdId ? 'USD' : (this.curCode[id] || ''); };
       for (const k of [...this.acc.keys()].sort()) {
         const g = this.acc.get(k); if (!g.trx.length && Math.abs(g.sa) < 0.005 && Math.abs(g.saA) < 0.005) { this.acc.delete(k); continue; }
         const cmp = (x, y) => { x = String(x ?? ''); y = String(y ?? ''); return x < y ? -1 : x > y ? 1 : 0; };
         g.trx.sort((a, b) => cmp(a.tanggal, b.tanggal) || cmp(a.referensi, b.referensi) || cmp(a.jurnal_id, b.jurnal_id));
         yield (base(g, { tipe: g.kode, referensi: g.nama }));
         yield (base(g, head));
-        yield (base(g, Object.assign({ tanggal: prevStr, tipe: 'Saldo Awal', debit: '0', kredit: '0', saldo: fmt(g.sa) }, V ? { saldo_usd: usdAcc(g) ? null : fmt(g.saA) } : {})));
+        yield (base(g, V ? { tanggal: 'Saldo Awal', saldo: F(g.sa), saldo_usd: usdAcc(g) ? null : F(g.saA) }
+          : { tanggal: prevStr, tipe: 'Saldo Awal', debit: '0', kredit: '0', saldo: fmt(g.sa) }));
         let run = g.sa, totD = 0, totK = 0, runA = g.saA, totDA = 0, totKA = 0;
         for (const r of g.trx) {
           const d = num(r.debit), kk = num(r.kredit); totD += d; totK += kk; run += this._sgn(g, d, kk);
-          const row = { tanggal: String(r.tanggal).slice(0, 10), tipe: r.tipe, referensi: r.referensi, kontak: r.kontak, deskripsi: r.deskripsi, dept: r.dept, proyek: r.proyek, faktur_pajak: r.faktur_pajak, no_invoice: r.no_invoice, debit: fmt(d), kredit: fmt(kk), saldo: fmt(run) };
+          const row = { tanggal: V ? dateZ(r.tanggal) : String(r.tanggal).slice(0, 10), tipe: r.tipe, referensi: r.referensi, kontak: V && !r.kontak ? '-' : r.kontak, deskripsi: r.deskripsi, dept: r.dept, proyek: r.proyek, faktur_pajak: r.faktur_pajak, no_invoice: r.no_invoice, debit: F(d), kredit: F(kk), saldo: F(run) };
           if (V) {
             const da = num(r.debit_a), ka = num(r.kredit_a); totDA += da; totKA += ka; runA += this._sgn(g, da, ka);
-            // transaksi bermata uang USD: kolom nilai asli dikosongkan; saldo berjalan tetap dihitung agar baris berikutnya benar
-            if (usdId && String(r.mata_uang_id ?? '').toLowerCase() === usdId) { row.kurs = null; row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; }
-            else { row.kurs = kurs(d, kk, da, ka); row.debit_usd = fmt(da); row.kredit_usd = fmt(ka); row.saldo_usd = fmt(runA); }
+            // transaksi bermata uang USD: blok nilai asli dikosongkan; saldo berjalan tetap dihitung agar baris berikutnya benar
+            if (usdId && String(r.mata_uang_id ?? '').toLowerCase() === usdId) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; }
+            else { row.debit_usd = F(da); row.kredit_usd = F(ka); row.saldo_usd = F(runA); }
+            // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs (dibulatkan 2 desimal)
+            const cc = curOf(r.mata_uang_id);
+            if (cc && !(row.debit_usd === null)) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
           }
           yield (base(g, row));
         }
         // baris total: saldo awal & akhir (mata uang dasar) di kolom deskripsi; blok nilai asli hanya berisi total debit/kredit (seperti footer JRXML), kosong untuk akun USD
-        yield (base(g, Object.assign({ tipe: 'Saldo Awal', deskripsi: fmt(g.sa), proyek: 'Total :', debit: fmt(totD), kredit: fmt(totK) }, V && !usdAcc(g) ? { debit_usd: fmt(totDA), kredit_usd: fmt(totKA) } : {})));
-        yield (base(g, Object.assign({ tipe: 'Saldo Akhir', deskripsi: fmt(run), proyek: 'Mutasi :', debit: fmt(run - g.sa) }, V ? { saldo: fmt(run) } : {})));
+        yield (base(g, Object.assign(V ? { tanggal: 'Saldo Awal' } : { tipe: 'Saldo Awal' }, { deskripsi: F(g.sa), proyek: 'Total :', debit: F(totD), kredit: F(totK) }, V && !usdAcc(g) ? { debit_usd: F(totDA), kredit_usd: F(totKA) } : {})));
+        yield (base(g, Object.assign(V ? { tanggal: 'Saldo Akhir' } : { tipe: 'Saldo Akhir' }, { deskripsi: F(run), proyek: 'Mutasi :', debit: F(run - g.sa) })));
         yield (base(g, {}));
         g.trx = null; this.acc.delete(k);   // lepaskan data mentah akun ini
       }
@@ -588,5 +596,5 @@
     return r => { for (let i = 0; i < tests.length; i++) if (!tests[i](r)) return false; return true; };
   }
 
-  return { analyzeQuery, localPredicate, usedColumns, selectHonored, ymd, num, fmt, appendAll, monthChunks, yearChunks, planChunks, prevDay, KREDIT_SIDE, TrialBalance, DEFAULT_USD_CURRENCY_ID, tbLayout, tbFields, jrFields, jrLayout, JournalBuilder, tbAccountOpts, tbRowOpts, LABELS, COLS, VALAS_COLS, ledgerColsOf, LEDGER_NUM, LEDGER_GROUP, rowKind, LedgerBuilder, LegacyMerger, mergeChunks, SEP, smartSort, BARIS_RE, decodeBaris, Pivot, pivot, Summarizer, groupRows, totalOf, jasperTipe, jasperSplit, expandJasper, JASPER_PARTS, crosstabLayout, crosstabExportRow };
+  return { analyzeQuery, localPredicate, usedColumns, selectHonored, ymd, num, fmt, appendAll, monthChunks, yearChunks, planChunks, prevDay, KREDIT_SIDE, TrialBalance, DEFAULT_USD_CURRENCY_ID, fmtZ, tbLayout, tbFields, jrFields, jrLayout, JournalBuilder, tbAccountOpts, tbRowOpts, LABELS, COLS, VALAS_COLS, ledgerColsOf, LEDGER_NUM, LEDGER_GROUP, rowKind, LedgerBuilder, LegacyMerger, mergeChunks, SEP, smartSort, BARIS_RE, decodeBaris, Pivot, pivot, Summarizer, groupRows, totalOf, jasperTipe, jasperSplit, expandJasper, JASPER_PARTS, crosstabLayout, crosstabExportRow };
 });

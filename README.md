@@ -221,3 +221,6 @@ Pilih salah satu untuk client: **B** (ringan, dibuka di browser) atau **C** (ter
 dan desain laporan dengan format yang sama.
 
 Build pertama mengunduh base Node.js (±40 MB) dari GitHub — perlu internet; hasil exe ±100 MB karena berisi Node.js + ExcelJS.
+
+## Tampilan Buku Besar Valas = General Ledger - Advance (v2.37)
+Tampilan Buku Besar Valas dibuat sama dengan laporan *General Ledger - Advance* di Zahir Online: judul akun `kode - nama`, blok **USD** (DEBIT/KREDIT/SALDO mata uang dasar) lalu blok **IDR** (DEBIT_A/KREDIT_A/SALDO nilai asli), tanggal `Jan 5, 2026`, angka tanpa nol desimal berlebih, baris Saldo Awal/Saldo Akhir berlabel, kontak kosong = `-`, dan baris kedua deskripsi `(IDR 975,000,000 X kurs)`. Kolom KURS dihapus; kolom NO FAKTUR PAJAK dan NO INVOICE tetap dipertahankan. Aturan USD (nilai asli dikosongkan) tidak berubah.
