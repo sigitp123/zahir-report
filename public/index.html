@@ -1313,10 +1313,11 @@ async function runReport({force=false}={}){
       // dua potongan tanggal yang tidak tumpang tindih (sebelum tahun berjalan + tahun berjalan), potongan tahun berjalan dilewati bila periode mulai 1 Januari
       const SA=F.combos.flatMap(c=>{ const b={...F.base,...c}; delete b.contact_id; return LedgerBuilder.saChunks(d1,b); });
       const {jobs:TX,expect}=await planJobs(cqTrx); T.expect=expect; T.total=SA.length+TX.length;
-      const B=new LedgerBuilder(); B.accCur=(await tbAccounts()).cur||{};
+      const B=new LedgerBuilder(); B.accCur=await accountCurMap();
       const all=[...SA.map(s=>({p:s.p,cq:cqSaldo,sink:r=>B.addSa(r,s.ytd),quiet:true})),...TX.map(p=>({p,cq:cqTrx,sink:r=>B.addTrx(r)}))];
       await parallel(all,CONCURRENCY,async j=>{ await fetchChunk(j.p,j.quiet?()=>{}:n=>T.rows(n),j.cq,null,j.sink); T.done(); });
       ov.sub('Menyusun buku besar…'); await sleep(20);
+      if(B.valas&&!Object.keys(B.accCur).length) toast('Mata uang akun tidak terbaca dari API akun — nilai IDR untuk akun USD belum bisa dikosongkan (transaksi USD tetap dikosongkan).','err');
       return B.build(d1);
     };
     let rows=null;
@@ -1553,7 +1554,22 @@ function renderTable(rows,d1,d2){
 }
 
 // daftar akun (sudah dimuat untuk filter) → akun Laba Berjalan / Laba Ditahan + kode akun berformat seperti di Zahir
-async function tbAccounts(){ try{ return tbAccountOpts(await optionsFor(PRESET_FILTERS.account)); }catch{ return {}; } }
+// mata uang tiap akun (kode akun tanpa tanda baca → 'USD'/'IDR'/…): dibaca dari daftar akun API; bentuk respons dibuat toleran
+// (currency.code / currency__code / currency_code / hanya id mata uang yang dicocokkan dengan ID USD)
+async function accountCurMap(){
+  if(LOOK['acccur']) return LOOK['acccur'];
+  const norm=c=>String(c??'').replace(/[^0-9a-z]/gi,'').toLowerCase(), usd=String(LedgerBuilder.usdCurrencyId||'').toLowerCase(); const m={};
+  for(const ep of ['/api/v2/accounts?per_page=2000&select=code,currency.code,currency.id','/api/v2/accounts?per_page=2000']){
+    try{ for(const x of listOf(await zget(ep))){
+      const code=pickv(x,['code','account_code']); if(code==='') continue;
+      let cur=pickv(x,['currency__code','currency_code','currency.code']); if(!cur&&x.currency&&typeof x.currency==='object') cur=pickv(x.currency,['code','symbol']); if(!cur&&typeof x.currency==='string') cur=x.currency;
+      if(!cur){ const id=String((x.currency&&x.currency.id)||x.currency__id||x.currency_id||x['currency.id']||'').toLowerCase(); if(id&&usd&&id===usd) cur='USD'; }
+      if(cur) m[norm(code)]=String(cur).toUpperCase(); } }catch{}
+    if(Object.keys(m).length) break;
+  }
+  LOOK['acccur']=m; return m;
+}
+async function tbAccounts(){ try{ const o=tbAccountOpts(await optionsFor(PRESET_FILTERS.account)); o.cur=Object.assign({},o.cur,await accountCurMap()); return o; }catch{ return {}; } }
 /* ---- trial balance (neraca saldo) dua mata uang: header 3 tingkat, angka format Indonesia, 0 = "-" ---- */
 const NFMT={}; const nfmt=d=>NFMT[d]||(NFMT[d]=new Intl.NumberFormat('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d}));
 function renderTB(rows,d1,d2){
