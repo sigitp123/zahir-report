@@ -68,7 +68,7 @@ app.post('/quit', (req, res) => {
   const ip = req.socket.remoteAddress || ''; if (!IS_PKG || !/^(::1|127\.0\.0\.1|::ffff:127\.0\.0\.1)$/.test(ip)) return res.status(403).json({ error: 'tidak diizinkan' });
   res.json({ ok: true }); setTimeout(() => process.exit(0), 300);
 });
-app.get('/version', (req, res) => res.json({ version: APP_VERSION, build: BUILD_ID, scope: REPORT_SCOPE, pkg: !!process.pkg && process.env.ZI_DESKTOP !== '1', desktop: process.env.ZI_DESKTOP === '1', online: IS_VERCEL, perPage: IS_VERCEL ? 2500 : 10000 }));
+app.get('/version', (req, res) => res.json({ version: APP_VERSION, build: BUILD_ID, scope: REPORT_SCOPE, pkg: !!process.pkg && process.env.ZI_DESKTOP !== '1', desktop: process.env.ZI_DESKTOP === '1', online: IS_VERCEL, perPage: IS_VERCEL ? 2500 : 10000, usdCurrencyId: USD_CURRENCY_ID }));
 // pustaka ExcelJS untuk browser (versi online membuat file Excel di browser)
 app.get('/vendor/exceljs.min.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=86400'); res.sendFile(require.resolve('exceljs/dist/exceljs.min.js')); });
 app.get('/auth/pubkey', (req, res) => res.json({ jwk: PUB_JWK }));   // null = kirim kredensial lewat header Basic (HTTPS)
@@ -275,7 +275,16 @@ app.post('/cq/ensure', async (req, res) => {
     const idx = await zahirCqIndex(base, headers, sq); if (!idx.ok) return res.json({ checked: false, results: [], reason: idx.reason || 'daftar custom query tidak terbaca dari API Zahir' });
     const out = [];
     for (const d of bundledCq()) {
-      if (d.name in idx.map) { out.push({ name: d.name, status: 'ada' }); continue; }
+      if (d.name in idx.map) {
+        // versi lama bb_trx_valas belum membawa kolom mata_uang_id → aturan "transaksi USD tanpa nilai IDR" tidak bisa jalan
+        let status = 'ada';
+        if (d.name === 'bb_trx_valas' && idx.map[d.name] !== true) {
+          for (const ver of ['v3', 'v2']) {
+            try { const r = await zfetch(`${base}/api/${ver}/custom_queries/${encodeURIComponent(idx.map[d.name])}${sq ? '?' + sq.slice(1) : ''}`, headers); const x = r.status < 300 && r.json && (r.json.results || r.json.data || r.json); if (x && typeof x.query === 'string') { if (!x.query.includes('mata_uang_id')) status = 'lama: hapus custom query ini di Zahir lalu periksa ulang agar dibuat versi baru'; break; } } catch {}
+          }
+        }
+        out.push({ name: d.name, status }); continue;
+      }
       const body = { name: d.name, reason: d.reason || '', field: d.field || {}, query: d.query, ...(d.query_count ? { query_count: d.query_count } : {}) };
       let done = false, err = '';
       for (const ep of ['/api/v3/custom_queries', '/api/v2/custom_queries']) {
@@ -404,6 +413,9 @@ setInterval(() => { for (const [id, ex] of EXPORTS) if (Date.now() - ex.at > 30 
 
 // ---- ekspor langsung: server menarik data dari Zahir, menyusun laporan (core.js yang sama dengan browser), menulis Excel streaming ----
 const core = require('./public/core.js');
+// ID mata uang USD: transaksi bermata uang ini tidak menampilkan blok nilai asli di Buku Besar Valas (lihat LedgerBuilder). Default = ID di core.js.
+const USD_CURRENCY_ID = (process.env.USD_CURRENCY_ID || '').trim().toLowerCase() || core.DEFAULT_USD_CURRENCY_ID;
+core.LedgerBuilder.usdCurrencyId = USD_CURRENCY_ID;
 const JOBS = new Map();
 const LEDGER_WIDTHS = { tanggal:11, tipe:7, referensi:14, kontak:24, deskripsi:48, dept:12, proyek:14, faktur_pajak:22, no_invoice:20, debit:16, kredit:16, saldo:18, kurs:11, debit_usd:16, kredit_usd:16, saldo_usd:18 };
 // kolom buku besar untuk Excel; valas=true → kolom USD ikut + header 2 tingkat (label "DEBIT (USD)" → "DEBIT" di bawah judul kelompok)

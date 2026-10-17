@@ -84,6 +84,16 @@ ditambah kolom **KURS** dan header dua tingkat **NILAI USD** (Debit / Kredit / S
 - Ekspor Excel (dari layar maupun *Ekspor langsung*) ikut memakai header dua tingkat.
 - Laporan buku besar biasa (`bb`) tidak berubah.
 
+### Transaksi USD tanpa nilai asli (v2.36.1)
+
+Di **Buku Besar Valas**, baris transaksi yang `currency_id`-nya = ID mata uang USD (default `fdbc942a-81dc-42f3-8f77-0774358dc084`)
+mengosongkan KURS dan DEBIT/KREDIT/SALDO nilai asli (`debit_a`/`kredit_a`) — sama dengan aturan di JRXML *General Ledger - Advance*.
+Saldo berjalan tetap dihitung, jadi baris berikutnya tidak bergeser.
+
+- ID bisa diganti lewat env `USD_CURRENCY_ID` (server → browser lewat `/version`).
+- Butuh custom query `bb_trx_valas` versi terbaru (membawa kolom `mata_uang_id`). Di database yang sudah punya versi lama,
+  tombol *Periksa custom query bawaan* menandainya "lama": hapus `bb_trx_valas` di Zahir lalu periksa ulang agar dibuat ulang.
+
 ## Trial Balance IDR & USD (v2.34)
 
 Katalog → **Neraca Saldo → Trial Balance (IDR & USD)**. Per akun: Beginning Balance (debit/kredit), Mutation (debit/kredit),
