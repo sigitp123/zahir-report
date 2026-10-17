@@ -276,11 +276,20 @@ app.post('/cq/ensure', async (req, res) => {
     const out = [];
     for (const d of bundledCq()) {
       if (d.name in idx.map) {
-        // versi lama bb_trx_valas belum membawa kolom mata_uang_id → aturan "transaksi USD tanpa nilai IDR" tidak bisa jalan
+        // versi lama bb_trx_valas belum membawa kolom mata_uang_id → diperbarui langsung lewat PUT /custom_queries/<id> (tanpa hapus)
         let status = 'ada';
         if (d.name === 'bb_trx_valas' && idx.map[d.name] !== true) {
+          const id = encodeURIComponent(idx.map[d.name]); let stale = false;
           for (const ver of ['v3', 'v2']) {
-            try { const r = await zfetch(`${base}/api/${ver}/custom_queries/${encodeURIComponent(idx.map[d.name])}${sq ? '?' + sq.slice(1) : ''}`, headers); const x = r.status < 300 && r.json && (r.json.results || r.json.data || r.json); if (x && typeof x.query === 'string') { if (!x.query.includes('mata_uang_id')) status = 'lama: hapus custom query ini di Zahir lalu periksa ulang agar dibuat versi baru'; break; } } catch {}
+            try { const r = await zfetch(`${base}/api/${ver}/custom_queries/${id}${sq ? '?' + sq.slice(1) : ''}`, headers); const x = r.status < 300 && r.json && (r.json.results || r.json.data || r.json); if (x && typeof x.query === 'string') { stale = !x.query.includes('mata_uang_id'); break; } } catch {}
+          }
+          if (stale) {
+            const body = { name: d.name, reason: d.reason || '', field: d.field || {}, query: d.query, ...(d.query_count ? { query_count: d.query_count } : {}) };
+            let done = false, err = '';
+            for (const ep of [`/api/v3/custom_queries/${id}`, `/api/v2/custom_queries/${id}`]) {
+              try { const r = await zfetch(base + ep + (sq ? '?' + sq.slice(1) : ''), headers, 'PUT', body); if (r.status < 300) { done = true; break; } err = (r.json?.error?.detail?.message) || r.json?.error?.message || (typeof r.json?.error === 'string' ? r.json.error : '') || ('HTTP ' + r.status); } catch (e) { err = e.message; }
+            }
+            status = done ? 'diperbarui' : 'lama: PUT ditolak (' + err + ') — hapus custom query ini di Zahir lalu periksa ulang';
           }
         }
         out.push({ name: d.name, status }); continue;

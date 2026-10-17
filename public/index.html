@@ -692,6 +692,7 @@ async function ensureBuiltinCq(manual){
     if(!j.checked){ const m='Tidak bisa memeriksa custom query bawaan: '+(j.reason||'daftar tidak terbaca'); if(manual) box.innerHTML=`<span style="color:var(--bad)">${esc(m)}</span>`; else toast(m,'err'); return; }
     const made=j.results.filter(x=>x.status==='dibuat').map(x=>x.name); const bad=j.results.filter(x=>/gagal/.test(x.status));
     if(made.length) toast('Custom query bawaan dibuat di database ini: '+made.join(', '));
+    const upd=j.results.filter(x=>x.status==='diperbarui').map(x=>x.name); if(upd.length) toast('Custom query diperbarui ke versi baru (PUT): '+upd.join(', '));
     const stale=j.results.filter(x=>/^lama/.test(x.status)); if(stale.length) toast('Custom query versi lama: '+stale.map(x=>x.name+' ('+x.status.replace(/^lama: /,'')+')').join('; '),'err');
     if(bad.length) toast('Custom query bawaan belum bisa dibuat: '+bad.map(x=>x.name+' ('+x.status.replace('gagal: ','')+')').join('; '),'err');
     if(manual) box.innerHTML=j.results.map(x=>`<span class="cqi ${/gagal|^lama/.test(x.status)?'no':'ok'}">${/gagal|^lama/.test(x.status)?'✗':'✓'} <span class="mono">${esc(x.name)}</span> <small>${esc(x.status)}</small></span>`).join(' &nbsp; ');
