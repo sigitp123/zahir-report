@@ -224,3 +224,10 @@ Build pertama mengunduh base Node.js (±40 MB) dari GitHub — perlu internet; h
 
 ## Tampilan Buku Besar Valas = General Ledger - Advance (v2.37)
 Tampilan Buku Besar Valas dibuat sama dengan laporan *General Ledger - Advance* di Zahir Online: judul akun `kode - nama`, blok **USD** (DEBIT/KREDIT/SALDO mata uang dasar) lalu blok **IDR** (DEBIT_A/KREDIT_A/SALDO nilai asli), tanggal `Jan 5, 2026`, angka tanpa nol desimal berlebih, baris Saldo Awal/Saldo Akhir berlabel, kontak kosong = `-`, dan baris kedua deskripsi `(IDR 975,000,000 X kurs)`. Kolom KURS dihapus; kolom NO FAKTUR PAJAK dan NO INVOICE tetap dipertahankan. Aturan USD (nilai asli dikosongkan) tidak berubah.
+
+## Buku Besar Valas disamakan dengan JRXML GL-Advance v24.11.281130 (v2.38)
+- Transaksi bermata uang bukan IDR (USD): DEBIT_A/KREDIT_A/SALDO kosong **dan tidak ikut** saldo berjalan & Total nilai asli (`debit_origin`/`credit_origin` = 0 di JRXML).
+- Baris kedua deskripsi `(KODE nilai X kurs)` tidak dicetak bila mata uang transaksi = mata uang dasar (USD); sebelumnya tercetak `(USD … X 1)`.
+- Akun tanpa transaksi pada periode tidak dicetak (`filterExpression` JRXML: `transaction__id` wajib ada).
+- Baris Total: Saldo Awal bernilai nol tampil `-`.
+- Belum diikuti: filter *Display Currency = Real Transaction* (JRXML memakai `*_amount_origin`).

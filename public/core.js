@@ -91,7 +91,7 @@
       const F = V ? fmtZ : fmt;   // buku besar valas memakai format angka Zahir
       const curOf = id => { id = String(id ?? '').toLowerCase(); return !id ? '' : id === usdId ? 'USD' : (this.curCode[id] || ''); };
       for (const k of [...this.acc.keys()].sort()) {
-        const g = this.acc.get(k); if (!g.trx.length && Math.abs(g.sa) < 0.005 && Math.abs(g.saA) < 0.005) { this.acc.delete(k); continue; }
+        const g = this.acc.get(k); if (V ? !g.trx.length : (!g.trx.length && Math.abs(g.sa) < 0.005 && Math.abs(g.saA) < 0.005)) { this.acc.delete(k); continue; }   // valas: seperti filterExpression JRXML — akun tanpa transaksi pada periode tidak dicetak
         const cmp = (x, y) => { x = String(x ?? ''); y = String(y ?? ''); return x < y ? -1 : x > y ? 1 : 0; };
         g.trx.sort((a, b) => cmp(a.tanggal, b.tanggal) || cmp(a.referensi, b.referensi) || cmp(a.jurnal_id, b.jurnal_id));
         yield (base(g, { tipe: g.kode, referensi: g.nama }));
@@ -103,23 +103,28 @@
           const d = num(r.debit), kk = num(r.kredit); totD += d; totK += kk; run += this._sgn(g, d, kk);
           const row = { tanggal: V ? dateZ(r.tanggal) : String(r.tanggal).slice(0, 10), tipe: r.tipe, referensi: r.referensi, kontak: V && !r.kontak ? '-' : r.kontak, deskripsi: r.deskripsi, dept: r.dept, proyek: r.proyek, faktur_pajak: r.faktur_pajak, no_invoice: r.no_invoice, debit: F(d), kredit: F(kk), saldo: F(run) };
           if (V) {
-            const da = num(r.debit_a), ka = num(r.kredit_a); totDA += da; totKA += ka; runA += this._sgn(g, da, ka);
-            // transaksi bermata uang USD: blok nilai asli dikosongkan; saldo berjalan tetap dihitung agar baris berikutnya benar.
+            const da = num(r.debit_a), ka = num(r.kredit_a);
+            // JRXML: is_usd_trx = kode mata uang transaksi ada dan bukan IDR → blok nilai asli (DEBIT_A/KREDIT_A/SALDO) kosong dan
+            // TIDAK ikut debit_origin/credit_origin (jadi tidak masuk saldo berjalan & total nilai asli). Mata uang dasar (USD) = currency__id sama dengan base.
             // Bila query lama (tanpa mata_uang_id), transaksi USD dikenali dari nilai asli = nilai dasar (kurs 1), yang tidak mungkin terjadi pada transaksi IDR.
             const hasId = r.mata_uang_id != null && r.mata_uang_id !== '';
-            const isUsd = hasId ? !!usdId && String(r.mata_uang_id).toLowerCase() === usdId : (d !== 0 || kk !== 0) && Math.abs(da - d) < 0.005 && Math.abs(ka - kk) < 0.005;
-            if (isUsd) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; const amt = d !== 0 ? d : kk; if (amt) row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(USD ${F(amt)} X 1)`; }
+            const midL = hasId ? String(r.mata_uang_id).toLowerCase() : '';
+            const isBase = hasId && !!usdId && midL === usdId;
+            const cc = curOf(r.mata_uang_id) || (hasId ? '' : 'IDR');
+            const isUsd = hasId ? (isBase || (!!cc && cc !== 'IDR')) : (d !== 0 || kk !== 0) && Math.abs(da - d) < 0.005 && Math.abs(ka - kk) < 0.005;
+            if (isUsd) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; }
             else {
+              totDA += da; totKA += ka; runA += this._sgn(g, da, ka);
               row.debit_usd = F(da); row.kredit_usd = F(ka); row.saldo_usd = F(runA);
-              // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs
-              const cc = curOf(r.mata_uang_id) || (hasId ? '' : 'IDR');
-              if (cc) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
             }
+            // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs.
+            // Tidak dicetak bila mata uang transaksi = mata uang dasar (currency__id = base currency id) atau mata uang tidak diketahui.
+            if (cc && !isBase && (hasId || !isUsd)) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
           }
           yield (base(g, row));
         }
         // baris total: saldo awal & akhir (mata uang dasar) di kolom deskripsi; blok nilai asli hanya berisi total debit/kredit (seperti footer JRXML), kosong untuk akun USD
-        yield (base(g, Object.assign(V ? { tanggal: 'Saldo Awal' } : { tipe: 'Saldo Awal' }, { deskripsi: F(g.sa), proyek: 'Total :', debit: F(totD), kredit: F(totK) }, V && !usdAcc(g) ? { debit_usd: F(totDA), kredit_usd: F(totKA) } : {})));
+        yield (base(g, Object.assign(V ? { tanggal: 'Saldo Awal' } : { tipe: 'Saldo Awal' }, { deskripsi: V && Math.abs(g.sa) < 1e-7 ? '-' : F(g.sa), proyek: 'Total :', debit: F(totD), kredit: F(totK) }, V && !usdAcc(g) ? { debit_usd: F(totDA), kredit_usd: F(totKA) } : {})));
         yield (base(g, Object.assign(V ? { tanggal: 'Saldo Akhir' } : { tipe: 'Saldo Akhir' }, { deskripsi: F(run), proyek: 'Mutasi :', debit: F(run - g.sa) })));
         yield (base(g, {}));
         g.trx = null; this.acc.delete(k);   // lepaskan data mentah akun ini
