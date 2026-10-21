@@ -276,12 +276,12 @@ app.post('/cq/ensure', async (req, res) => {
     const out = [];
     for (const d of bundledCq()) {
       if (d.name in idx.map) {
-        // versi lama bb_trx_valas belum membawa kolom mata_uang_id → diperbarui langsung lewat PUT /custom_queries/<id> (tanpa hapus)
+        // versi lama bb_trx_valas belum membawa mata uang per baris (jurnalvc.currency_id) & kurs → diperbarui langsung lewat PUT /custom_queries/<id> (tanpa hapus)
         let status = 'ada';
         if (d.name === 'bb_trx_valas' && idx.map[d.name] !== true) {
           const id = encodeURIComponent(idx.map[d.name]); let stale = false;
           for (const ver of ['v3', 'v2']) {
-            try { const r = await zfetch(`${base}/api/${ver}/custom_queries/${id}${sq ? '?' + sq.slice(1) : ''}`, headers); const x = r.status < 300 && r.json && (r.json.results || r.json.data || r.json); if (x && typeof x.query === 'string') { stale = !x.query.includes('mata_uang_id'); break; } } catch {}
+            try { const r = await zfetch(`${base}/api/${ver}/custom_queries/${id}${sq ? '?' + sq.slice(1) : ''}`, headers); const x = r.status < 300 && r.json && (r.json.results || r.json.data || r.json); if (x && typeof x.query === 'string') { stale = !x.query.includes('nilaikurs'); break; } } catch {}
           }
           if (stale) {
             const body = { name: d.name, reason: d.reason || '', field: d.field || {}, query: d.query, ...(d.query_count ? { query_count: d.query_count } : {}) };

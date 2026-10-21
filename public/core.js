@@ -110,7 +110,7 @@
             const hasId = r.mata_uang_id != null && r.mata_uang_id !== '';
             const midL = hasId ? String(r.mata_uang_id).toLowerCase() : '';
             const isBase = hasId && !!usdId && midL === usdId;
-            const cc = curOf(r.mata_uang_id) || (hasId ? '' : 'IDR');
+            const cc = curOf(r.mata_uang_id) || 'IDR';   // mata uang per baris jurnal (jurnalvc.currency_id); kode tak dikenal → IDR
             const isUsd = hasId ? (isBase || (!!cc && cc !== 'IDR')) : (d !== 0 || kk !== 0) && Math.abs(da - d) < 0.005 && Math.abs(ka - kk) < 0.005;
             if (isUsd) { row.debit_usd = null; row.kredit_usd = null; row.saldo_usd = null; }
             else {
@@ -119,7 +119,7 @@
             }
             // baris kedua deskripsi seperti di Zahir: "(IDR 975,000,000 X 0)" = mata uang transaksi, nilai asli, kurs.
             // Tidak dicetak bila mata uang transaksi = mata uang dasar (currency__id = base currency id) atau mata uang tidak diketahui.
-            if (cc && !isBase && (hasId || !isUsd)) { const useD = da !== 0, amt = useD ? da : ka, rate = amt ? (useD ? d : kk) / amt : 0; row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
+            if (cc && !isBase && (hasId || !isUsd)) { const useD = da !== 0, amt = useD ? da : ka, rate = num(r.kurs) || (amt ? (useD ? d : kk) / amt : 0); row.deskripsi = (r.deskripsi ? r.deskripsi + '\n' : '') + `(${cc} ${F(amt)} X ${F(Math.round(rate * 100) / 100)})`; }
           }
           yield (base(g, row));
         }

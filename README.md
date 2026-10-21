@@ -231,3 +231,7 @@ Tampilan Buku Besar Valas dibuat sama dengan laporan *General Ledger - Advance* 
 - Akun tanpa transaksi pada periode tidak dicetak (`filterExpression` JRXML: `transaction__id` wajib ada).
 - Baris Total: Saldo Awal bernilai nol tampil `-`.
 - Belum diikuti: filter *Display Currency = Real Transaction* (JRXML memakai `*_amount_origin`).
+
+### Mata uang per baris jurnal (v2.38.1)
+Mata uang transaksi kini dibaca dari **baris jurnal** (`jurnalvc.currency_id`) dan kurs dari `jurnalvc.nilaikurs`, bukan dari header (`g_jurnal.currency_id`, yang USD untuk semua transaksi sehingga blok IDR selalu kosong).
+Custom query `bb_trx_valas` versi baru membawa kolom `kurs`; database yang masih punya versi lama diperbarui otomatis (PUT) lewat tombol *Periksa custom query bawaan* — **klik tombol itu sekali** setelah memperbarui aplikasi.
