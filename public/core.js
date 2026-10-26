@@ -177,7 +177,7 @@
      Sumber: custom query jurnal_all_trx (satu baris per baris jurnal). Per transaksi: baris kepala (tipe, nomor, tanggal,
      kontak, deskripsi, dept, proyek), baris akun, lalu baris "Balance" (jumlah debit/kredit kedua mata uang). */
   const JR_FIELDS = [['tipe', 'Type'], ['nomor', '#Transaction'], ['tanggal', 'Date'], ['kontak', 'Business Partner'], ['deskripsi', 'Description'],
-    ['akun', 'Account'], ['kode_akun', 'Account code'], ['dept', 'DEPT'], ['b_debit', 'DEBIT'], ['b_kredit', 'KREDIT'], ['a_debit', 'DEBIT'], ['a_kredit', 'KREDIT'], ['proyek', 'KODE PROJEK']];
+    ['akun', 'Account'], ['kode_akun', 'Account code'], ['dept', 'DEPT'], ['b_debit', 'DEBIT'], ['b_kredit', 'KREDIT'], ['a_debit', 'DEBIT'], ['a_kredit', 'KREDIT'], ['proyek', 'PROJECT']];
   function jrFields(o) {
     o = o || {}; const cur = { a: o.curA || 'IDR', b: o.curB || 'USD' };
     const desc = { tipe: 'Jenis transaksi', nomor: 'Nomor transaksi', tanggal: 'Tanggal', kontak: 'Kontak', deskripsi: 'Keterangan transaksi', akun: 'Nama akun (baris akun) / "Balance"', kode_akun: 'Kode akun', dept: 'Kepala: nama dept · baris: kode dept', proyek: 'Kode proyek (baris kepala)' };
@@ -190,12 +190,13 @@
     const order = cfg && cfg.length ? [...cfg.map(c => c.key).filter(k => all.some(f => f.key === k)), ...all.map(f => f.key).filter(k => !m.has(k))] : all.map(f => f.key);
     const cols = order.filter(k => !m.has(k) || m.get(k).show !== false);
     const labels = Object.fromEntries(all.map(f => [f.key, (m.get(f.key) && m.get(f.key).label) || f.label]));
+    if (labels.proyek === 'KODE PROJEK') labels.proyek = 'PROJECT';   // desain tersimpan lama
     const dec = {}; for (const c of cols) if (/^[ab]_/.test(c)) dec[c] = c[0] === 'a' ? (o.decA ?? 0) : (o.decB ?? 2);
     const grp = c => /^[ab]_/.test(c) ? c[0] : null; const h0 = [], h1 = [];
     for (let i = 0; i < cols.length;) { const g = grp(cols[i]);
       if (!g) { h0.push({ label: labels[cols[i]], rowspan: 2, key: cols[i] }); i++; continue; }
       let j = i; while (j < cols.length && grp(cols[j]) === g) { h1.push({ label: labels[cols[j]], key: cols[j] }); j++; }
-      h0.push({ label: cur[g], colspan: j - i }); i = j; }
+      h0.push({ label: cur[g], colspan: j - i, flat: true }); i = j; }   // flat: judul mata uang berwarna sama dengan header lain (biru)
     return { cols, labels, dec, heads: h1.length ? [h0, h1] : [h0.map(h => ({ ...h, rowspan: 1 }))], numeric: cols.filter(c => /^[ab]_/.test(c)) };
   }
   const typeName = t => String(t ?? '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());

@@ -17,7 +17,7 @@ const GRP_FILL = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF063E5C' } 
 function writeHeads(ws, heads, ncol) {
   const taken = new Set(); const rows = []; const merges = []; const grp = new Set();   // grp: kolom judul kelompok (mata uang) di baris pertama
   heads.forEach((hr, ri) => { const vals = new Array(ncol).fill(''); let c = 0;
-    for (const h of hr) { while (taken.has(ri + ':' + c)) c++; const cs = h.colspan || 1, rs = h.rowspan || 1; vals[c] = h.label; if (ri === 0 && !h.key) for (let b = 0; b < cs; b++) grp.add(c + b);
+    for (const h of hr) { while (taken.has(ri + ':' + c)) c++; const cs = h.colspan || 1, rs = h.rowspan || 1; vals[c] = h.label; if (ri === 0 && !h.key && !h.flat) for (let b = 0; b < cs; b++) grp.add(c + b);
       for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) taken.add((ri + a) + ':' + (c + b));
       if (cs > 1 || rs > 1) merges.push([ri, c + 1, ri + rs - 1, c + cs]); c += cs; }
     rows.push(vals); });
