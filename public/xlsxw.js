@@ -12,7 +12,7 @@ const TOT_FILL  = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFDBE9F3' }
 const NUMFMT = '#,##0.00;-#,##0.00;0';
 const toNum = v => { if (v == null || v === '') return null; const n = Number(String(v).replace(/,/g, '')); return isNaN(n) ? null : n; };
 const rowKind = r => { if (r.tanggal == null && r.kode_akun && r.tipe === r.kode_akun) return 'title'; if (r.tanggal === 'TANGGAL') return 'head'; if (r.proyek === 'Total :' || r.proyek === 'Mutasi :') return 'tot'; if (r.tipe === 'Saldo Awal' && r.tanggal) return 'sa'; if (r.tanggal == null && r.tipe == null && r.referensi == null) return 'blank'; return 'trx'; };
-const GRP_FILL = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF063E5C' } };
+const GRP_FILL = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF0E7FB8' } };   // judul kelompok USD/IDR: biru sama dengan header kolom
 // heads (opsional): header bertingkat [[{label, colspan, rowspan}], ...] — sel digabung sesuai span (dipakai trial balance)
 function writeHeads(ws, heads, ncol) {
   const taken = new Set(); const rows = []; const merges = []; const grp = new Set();   // grp: kolom judul kelompok (mata uang) di baris pertama
