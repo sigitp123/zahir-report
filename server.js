@@ -157,12 +157,16 @@ app.post('/auth/companies', async (req, res) => {
     const token = req.body.token; if (!token) return res.status(401).json({ error: 'Belum login' });
     const headers = { Authorization: 'Bearer ' + token, client: clientB64(req.body.client) };
     const notes = [];
+    // pencarian dicoba dari yang paling spesifik ke paling longgar: sebagian akun (anggota undangan / peran terbatas) kosong bila difilter status membership
+    const QUERIES = ['?per_page=500&sort[company.name]=asc&company[membership][status][$nin]=INACTIVE', '?per_page=500&sort[company.name]=asc', '?per_page=500', ''];
     for (const ep of COMPANY_ENDPOINTS) {
-      const q = '?per_page=500&sort[company.name]=asc&company[membership][status][$nin]=INACTIVE';
-      const r = await zfetch(server + ep + q, headers);
-      const list = r.json?.results || r.json?.data || (Array.isArray(r.json) ? r.json : null);
-      if (r.status === 200 && Array.isArray(list) && list.length) return res.json({ endpoint: ep, results: list });
-      notes.push(`${ep}: HTTP ${r.status}`);
+      for (const q of QUERIES) {
+        const r = await zfetch(server + ep + q, headers);
+        const list = r.json?.results || r.json?.data || r.json?.companies || (Array.isArray(r.json) ? r.json : null);
+        if (r.status === 200 && Array.isArray(list) && list.length) return res.json({ endpoint: ep, results: list });
+        const keys = r.json && typeof r.json === 'object' ? Object.keys(r.json).slice(0, 6).join(',') : '';
+        notes.push(`${ep}${q ? '?…' + (q.includes('$nin') ? 'status' : q.includes('sort') ? 'sort' : 'page') : ''}: HTTP ${r.status}${r.status === 200 ? ', 0 perusahaan' + (keys ? ' (field: ' + keys + ')' : '') : ''}`);
+      }
     }
     res.json({ endpoint: null, results: [], notes });
   } catch (e) { res.status(500).json({ error: e.message }); }
