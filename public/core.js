@@ -148,6 +148,7 @@
       ...['a', 'b'].flatMap(p => TB_PARTS.map(k => ({ key: p + '_' + k, label: TB_SUB[k], desc: `${cur[p]} · ${k === 'net' ? 'Net mutation' : sec[TB_SEC[k]] + ' · ' + TB_SUB[k].toLowerCase()}` })))];
   }
   // tata letak: kolom tampil (cfg = desain [{key,label,show}], urutan tetap), label, desimal, header 3 tingkat
+  const isIdr = c => String(c ?? '').trim().toUpperCase() === 'IDR';
   function tbLayout(o, cfg) {
     o = o || {}; const curA = o.curA || 'IDR', curB = o.curB || 'USD';
     const all = tbFields(o); const m = new Map((cfg || []).map(c => [c.key, c]));
@@ -159,11 +160,12 @@
     for (const k of ['kode_akun', 'nama_akun']) if (vis.has(k)) h0.push({ label: labels[k], rowspan: 3, key: k });
     for (const [p, cur] of [['a', curA], ['b', curB]]) {
       const ks = TB_PARTS.map(k => p + '_' + k).filter(k => vis.has(k)); if (!ks.length) continue;
-      h0.push({ label: cur, colspan: ks.length });
+      const idr = isIdr(cur);   // kolom mata uang IDR diberi warna abu-abu (idr:true), USD tetap biru
+      h0.push({ label: cur, colspan: ks.length, idr });
       for (const S of ['B', 'M', 'N', 'E']) {
         const sk = ks.filter(k => TB_SEC[k.slice(2)] === S); if (!sk.length) continue;
-        if (S === 'N') h1.push({ label: labels[sk[0]], rowspan: 2, key: sk[0] });
-        else { h1.push({ label: sec[S], colspan: sk.length }); for (const k of sk) h2.push({ label: labels[k], key: k }); }
+        if (S === 'N') h1.push({ label: labels[sk[0]], rowspan: 2, key: sk[0], idr });
+        else { h1.push({ label: sec[S], colspan: sk.length, idr }); for (const k of sk) h2.push({ label: labels[k], key: k, idr }); }
       }
     }
     const heads = [h0, h1, h2].filter(r => r.length);
@@ -195,8 +197,9 @@
     const grp = c => /^[ab]_/.test(c) ? c[0] : null; const h0 = [], h1 = [];
     for (let i = 0; i < cols.length;) { const g = grp(cols[i]);
       if (!g) { h0.push({ label: labels[cols[i]], rowspan: 2, key: cols[i] }); i++; continue; }
-      let j = i; while (j < cols.length && grp(cols[j]) === g) { h1.push({ label: labels[cols[j]], key: cols[j] }); j++; }
-      h0.push({ label: cur[g], colspan: j - i, flat: true }); i = j; }   // flat: judul mata uang berwarna sama dengan header lain (biru)
+      const idr = isIdr(cur[g]);
+      let j = i; while (j < cols.length && grp(cols[j]) === g) { h1.push({ label: labels[cols[j]], key: cols[j], idr }); j++; }
+      h0.push({ label: cur[g], colspan: j - i, flat: true, idr }); i = j; }   // flat: judul mata uang berwarna sama dengan header lain (biru)
     return { cols, labels, dec, heads: h1.length ? [h0, h1] : [h0.map(h => ({ ...h, rowspan: 1 }))], numeric: cols.filter(c => /^[ab]_/.test(c)) };
   }
   const typeName = t => String(t ?? '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());

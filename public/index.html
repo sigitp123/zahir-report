@@ -244,7 +244,10 @@ table.gl.valas td.r{white-space:nowrap}
 /* trial balance: header 3 tingkat (tidak sticky agar baris header tidak saling menimpa) */
 table.gl.tb thead th{position:static;text-align:center;vertical-align:middle;border-right:1px solid rgba(255,255,255,.35);border-bottom:1px solid rgba(255,255,255,.35);white-space:normal}
 table.gl.tb thead th.cur{background:var(--brand);letter-spacing:.04em;font-weight:600}
-table.gl.tb.jr thead th.cur{background:var(--brand)}   /* Jurnal - All Transaction: judul USD/IDR sama biru dengan header kolom */
+table.gl.tb.jr thead th.cur{background:var(--brand)}
+/* kolom IDR = abu-abu, USD = biru (Trial Balance, Jurnal, Buku Besar Valas) */
+:root{--idr:#7a8794}
+table.gl thead th.idr,table.gl tr.head th.idr,table.gl.valas tr.h2 th.grp.idr{background:var(--idr)!important}   /* Jurnal - All Transaction: judul USD/IDR sama biru dengan header kolom */
 table.gl.tb thead tr.h2 th{font-size:10.5px}
 table.gl.tb td{border-right:1px solid #eef1f5}
 table.gl.tb td.gs{border-left:2px solid #c9d6e3}
@@ -1611,7 +1614,7 @@ function renderTB(rows,d1,d2){
   if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
   const L=tbLayout(st.report.cur||{},st.report.cols); const {cols,labels,dec,heads}=L; const numeric=new Set(L.numeric);
   const f=(c,v)=>{ const d=dec[c]; if(v==null) return ''; if(Math.abs(v)<(d?0.005:0.5)) return '-'; return nfmt(d).format(v); };
-  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${i===0&&!h.key?'cur':''}${h.key==='nama_akun'||h.key==='kode_akun'?' l':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
+  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${i===0&&!h.key?'cur':''}${h.key==='nama_akun'||h.key==='kode_akun'?' l':''}${h.idr?' idr':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
   const W={kode_akun:104,nama_akun:260}; const cw=c=>W[c]||(c.endsWith('_net')?104:94); const w=cols.reduce((a,c)=>a+cw(c),0);
   $('#rBody').innerHTML=`<table class="gl tb" style="min-width:${w}px"><colgroup>${cols.map(c=>`<col style="width:${(cw(c)/w*100).toFixed(2)}%">`).join('')}</colgroup><thead>${thead}</thead><tbody id="glBody"></tbody></table>`;
   const rowHtml=r=>`<tr class="${r.__tot?'tot':'trx'}">${cols.map(c=>numeric.has(c)?`<td class="r${c.startsWith('b_')&&c.endsWith('_bd')?' gs':''}">${f(c,r[c])}</td>`:`<td class="${c==='kode_akun'?'nw':''}">${esc(r[c]??'')}</td>`).join('')}</tr>`;
@@ -1628,7 +1631,7 @@ function renderJournal(rows,d1,d2){
   if(!rows.length){ $('#rBody').innerHTML='<div class="empty">Tidak ada data pada filter ini.</div>'; $('#more').classList.add('hide'); return; }
   const L=jrLayout(st.report.cur||{},st.report.cols); const {cols,labels,dec,heads}=L; const numeric=new Set(L.numeric);
   const f=(c,v)=>{ if(v==null||v==='') return ''; const d=dec[c]; if(Math.abs(v)<(d?0.005:0.5)) return '-'; return nfmt(d).format(v); };
-  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${!h.key?'cur':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
+  const thead=heads.map((row,i)=>`<tr class="h${i}">${row.map(h=>`<th${h.colspan>1?` colspan="${h.colspan}"`:''}${h.rowspan>1?` rowspan="${h.rowspan}"`:''} class="${!h.key?'cur':''}${h.idr?' idr':''}">${esc(h.label)}</th>`).join('')}</tr>`).join('');
   const W={tipe:110,nomor:120,tanggal:88,kontak:150,deskripsi:230,akun:210,kode_akun:100,dept:110,proyek:100}; const cw=c=>W[c]||110; const w=cols.reduce((a,c)=>a+cw(c),0);
   $('#rBody').innerHTML=`<table class="gl tb jr" style="min-width:${w}px"><colgroup>${cols.map(c=>`<col style="width:${(cw(c)/w*100).toFixed(2)}%">`).join('')}</colgroup><thead>${thead}</thead><tbody id="glBody"></tbody></table>`;
   const rowHtml=r=>`<tr class="${r.__k}">${cols.map(c=>numeric.has(c)?`<td class="r">${r.__k==='jh'?'':f(c,r[c])}</td>`:`<td class="${c==='tanggal'||c==='nomor'?'nw':''}">${esc(r[c]??'')}</td>`).join('')}</tr>`;
@@ -1691,8 +1694,8 @@ const subLabel=(lab,g)=>g?String(lab).replace(/\s*\((USD|IDR)\)\s*$/i,''):lab;
 function ledgerHeadHtml(){
   const G=R.groups; const th=c=>`<th class="${NUM.has(c)?'r':''}">${esc(R.labels[c])}</th>`;
   if(!G) return `<tr class="head">${R.cols.map(th).join('')}</tr>`;
-  const top=G.map(g=>g.label?`<th class="grp" colspan="${g.span}">${esc(g.label)}</th>`:g.cols.map(c=>`<th rowspan="2" class="${NUM.has(c)?'r':''}">${esc(R.labels[c])}</th>`).join('')).join('');
-  const bot=G.filter(g=>g.label).map(g=>g.cols.map(c=>`<th class="r sub">${esc(subLabel(R.labels[c],g.label))}</th>`).join('')).join('');
+  const top=G.map(g=>g.label?`<th class="grp${g.label==='IDR'?' idr':''}" colspan="${g.span}">${esc(g.label)}</th>`:g.cols.map(c=>`<th rowspan="2" class="${NUM.has(c)?'r':''}">${esc(R.labels[c])}</th>`).join('')).join('');
+  const bot=G.filter(g=>g.label).map(g=>g.cols.map(c=>`<th class="r sub${g.label==='IDR'?' idr':''}">${esc(subLabel(R.labels[c],g.label))}</th>`).join('')).join('');
   return `<tr class="head h2">${top}</tr><tr class="head h2b">${bot}</tr>`;
 }
 const NW=new Set(['tanggal','referensi']);

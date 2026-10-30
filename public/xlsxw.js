@@ -12,16 +12,17 @@ const TOT_FILL  = { type:'pattern', pattern:'solid', fgColor:{ argb:'FFDBE9F3' }
 const NUMFMT = '#,##0.00;-#,##0.00;0';
 const toNum = v => { if (v == null || v === '') return null; const n = Number(String(v).replace(/,/g, '')); return isNaN(n) ? null : n; };
 const rowKind = r => { if (r.tanggal == null && r.kode_akun && r.tipe === r.kode_akun) return 'title'; if (r.tanggal === 'TANGGAL') return 'head'; if (r.proyek === 'Total :' || r.proyek === 'Mutasi :') return 'tot'; if (r.tipe === 'Saldo Awal' && r.tanggal) return 'sa'; if (r.tanggal == null && r.tipe == null && r.referensi == null) return 'blank'; return 'trx'; };
+const IDR_FILL = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF7A8794' } };   // kolom IDR abu-abu
 const GRP_FILL = { type:'pattern', pattern:'solid', fgColor:{ argb:'FF0E7FB8' } };   // judul kelompok USD/IDR: biru sama dengan header kolom
 // heads (opsional): header bertingkat [[{label, colspan, rowspan}], ...] — sel digabung sesuai span (dipakai trial balance)
 function writeHeads(ws, heads, ncol) {
-  const taken = new Set(); const rows = []; const merges = []; const grp = new Set();   // grp: kolom judul kelompok (mata uang) di baris pertama
+  const taken = new Set(); const rows = []; const merges = []; const grp = new Set(); const idrCell = new Set();   // grp: kolom judul kelompok (mata uang) di baris pertama
   heads.forEach((hr, ri) => { const vals = new Array(ncol).fill(''); let c = 0;
     for (const h of hr) { while (taken.has(ri + ':' + c)) c++; const cs = h.colspan || 1, rs = h.rowspan || 1; vals[c] = h.label; if (ri === 0 && !h.key && !h.flat) for (let b = 0; b < cs; b++) grp.add(c + b);
-      for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) taken.add((ri + a) + ':' + (c + b));
+      for (let a = 0; a < rs; a++) for (let b = 0; b < cs; b++) { taken.add((ri + a) + ':' + (c + b)); if (h.idr) idrCell.add((ri + a) + ':' + (c + b)); }
       if (cs > 1 || rs > 1) merges.push([ri, c + 1, ri + rs - 1, c + cs]); c += cs; }
     rows.push(vals); });
-  const added = rows.map((v, ri) => { const r = ws.addRow(v); for (let c = 1; c <= ncol; c++) { const cell = r.getCell(c); cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = ri === 0 && grp.has(c - 1) ? GRP_FILL : HEAD_FILL; cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; } return r; });
+  const added = rows.map((v, ri) => { const r = ws.addRow(v); for (let c = 1; c <= ncol; c++) { const cell = r.getCell(c); cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = idrCell.has(ri + ':' + (c - 1)) ? IDR_FILL : ri === 0 && grp.has(c - 1) ? GRP_FILL : HEAD_FILL; cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }; } return r; });
   const first = added[0].number;   // nomor baris sebenarnya, diketahui setelah baris ditambahkan
   for (const [r1, c1, r2, c2] of merges) ws.mergeCells(first + r1, c1, first + r2, c2);   // gabung sebelum commit (writer streaming)
   added.forEach(r => r.commit());
@@ -39,10 +40,11 @@ function writeHeads(ws, heads, ncol) {
     if (G) {
       const top = ws.addRow(cols.map(() => '')); const rn = top.number; let i = 1;
       for (const g of G) { const sp = g.span || 1; const cell = top.getCell(i); cell.value = g.label || labels[cols[i - 1]] || cols[i - 1];
-        for (let j = i; j < i + sp; j++) { const c = top.getCell(j); c.font = white; c.fill = g.label ? GRP_FILL : HEAD_FILL; c.alignment = { horizontal: 'center', vertical: 'middle' }; }
+        for (let j = i; j < i + sp; j++) { const c = top.getCell(j); c.font = white; c.fill = g.label === 'IDR' ? IDR_FILL : g.label ? GRP_FILL : HEAD_FILL; c.alignment = { horizontal: 'center', vertical: 'middle' }; }
         i += sp; }
       const r = ws.addRow(cols.map(c => labels[c] || c));
-      r.eachCell((cell, n) => { cell.font = white; cell.fill = HEAD_FILL; cell.alignment = { horizontal: numSet.has(cols[n - 1]) ? 'right' : 'left', vertical: 'middle' }; });
+      const idrCols = new Set(); { let k = 1; for (const g of G) { for (let j = k; j < k + (g.span || 1); j++) if (g.label === 'IDR') idrCols.add(j); k += g.span || 1; } }
+      r.eachCell((cell, n) => { cell.font = white; cell.fill = idrCols.has(n) ? IDR_FILL : HEAD_FILL; cell.alignment = { horizontal: numSet.has(cols[n - 1]) ? 'right' : 'left', vertical: 'middle' }; });
       // gabungkan sebelum commit (writer streaming tidak bisa mengubah baris yang sudah di-commit): kelompok → horizontal; kolom tanpa kelompok → vertikal (2 baris)
       i = 1; for (const g of G) { const sp = g.span || 1; if (g.label && sp > 1) ws.mergeCells(rn, i, rn, i + sp - 1); if (!g.label) for (let j = i; j < i + sp; j++) ws.mergeCells(rn, j, rn + 1, j); i += sp; }
       top.commit(); r.commit();
